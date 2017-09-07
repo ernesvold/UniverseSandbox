@@ -118,7 +118,7 @@ GameObject:
   - component: {fileID: 428065843}
   - component: {fileID: 428065842}
   m_Layer: 0
-  m_Name: Box
+  m_Name: MainGameObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -136,6 +136,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   numballs: 8
+  boxsize: 2
 --- !u!4 &428065843
 Transform:
   m_ObjectHideFlags: 0
