@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class BoxScript : MonoBehaviour {
 	void Start(){
-		BallList ballList = new BallList ();
-		ballList.gameobj.transform.parent = transform;
+		BallList ballList = new BallList (transform);
+		ballList.AddBall (1);
 	}
 }
 
@@ -16,7 +16,7 @@ public class Ball {
 	public Vector3 velocity = Vector3.zero; // the 3d velocity of the ball
 
 	// Ball constructor
-	public Ball(GameObject parent){
+	public Ball(Transform parent){
 		gameobj.name = "Ball"; // name the sphere
 		gameobj.transform.parent = parent.transform; // set as child
 		Debug.Log ("Ball created.");
@@ -31,11 +31,16 @@ public class BallList {
 	public List<Ball> balls = new List<Ball>(); // the list of ball objects
 
 	// BallList constructor
-	public BallList(){
+	public BallList(Transform parent){
 		gameobj.name = "BallList"; // name the empty game object
+		gameobj.transform.parent = parent.transform; // set as child
 		Debug.Log ("BallList created."); 
-		balls.Add (new Ball(gameobj)); // add a new ball
 	}
 
-
+	// Create and add a Ball to the list
+	public void AddBall(int numballs){
+		for (int i=0; i<numballs; i++){
+			balls.Add (new Ball(gameobj.transform)); // add a new ball
+		}
+	}
 }
