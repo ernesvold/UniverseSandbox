@@ -16,7 +16,7 @@ public class MainScript : MonoBehaviour {
 	}
 
 	void FixedUpdate(){
-		ballList.IntegrateMotion (Time.fixedTime);
+		ballList.IntegrateMotion (Time.fixedDeltaTime);
 	}
 }
 
@@ -104,14 +104,16 @@ public class Ball {
 
 	public GameObject gameobj = GameObject.CreatePrimitive (PrimitiveType.Sphere); // a sphere in unity
 	public Vector3 velocity = Vector3.one; // the 3d velocity of the ball
+	public float mass = 1f; // the mass of the ball
 
 	// Ball constructor
-	public Ball(Transform parent, Vector3 initposition, Vector3 initvelocity, float diameter){
+	public Ball(Transform parent, Vector3 initposition, Vector3 initvelocity, float diameter, float ballmass){
 		gameobj.name = "Ball"; // name the sphere
 		gameobj.transform.parent = parent; // set as child
 		gameobj.transform.position = initposition; // initial position
 		velocity = initvelocity; // initial velocity
 		gameobj.transform.localScale = Vector3.one * diameter; // set diameter
+		mass = ballmass; // set mass
 	}
 
 	public void MoveBall(float timestep){
@@ -139,15 +141,20 @@ public class BallList {
 	public void AddBall(int numballs){
 		Vector3[] positions = new Vector3[numballs]; // ball positions
 		Vector3[] velocities = new Vector3[numballs]; // ball velocities
+		float[] masses = Enumerable.Repeat(1f,numballs).ToArray(); // ball masses
+
 		float diameter = 1.0f; // ball radius
 		float maxpos = boxsize - diameter/2; // maximum initial position of balls (can't overlap wall 
-		float maxvel = 1.0f;
-		MakeRandomPositions(numballs, maxpos, ref positions, out diameter);
-		MakeRandomVelocities (numballs, maxvel, ref velocities);
+		MakeRandomPositions(numballs, maxpos, ref positions, out diameter); // generate random positions (and set diameter)
+
+		float velocitycap = 50f; // limit on velocity for viewing purposes
+		float collisionmaxvel = diameter/(Mathf.Sqrt(3)*Time.fixedDeltaTime); // limit on velocity for collision calculations
+		float maxvel = Mathf.Min(velocitycap, collisionmaxvel); // use the minimum of the two
+		MakeRandomVelocities (numballs, maxvel, ref masses, ref velocities); // generate random velocities
 
 		// Create and add each Ball
 		for (int i = 0; i < numballs; i++){
-			balls.Add (new Ball (gameobj.transform, positions [i], velocities[i], diameter)); // add a new ball
+			balls.Add (new Ball (gameobj.transform, positions [i], velocities[i], diameter, masses[i])); // add a new ball
 		}
 	}
 
@@ -194,8 +201,9 @@ public class BallList {
 			k = array.Length;
 		}
 
+		// For the Knuth shuffle, you don't need to shuffle the last element
 		if (k == array.Length) {
-			k = k - 1; // for the Knuth shuffle, you don't need to shuffle the last element
+			k = k - 1; 
 		}
 
 		// Knuth shuffle algorithm -- shuffles first k elements in array
@@ -208,7 +216,7 @@ public class BallList {
 	
 	}
 
-	public void MakeRandomVelocities(int numvelocities, float maxvel, ref Vector3[] velocities){
+	public void MakeRandomVelocities(int numvelocities, float maxvel, ref float[] masses, ref Vector3[] velocities){
 	
 		// Initialize total momentum vector
 		Vector3 totalmomentum = Vector3.zero;
@@ -216,13 +224,13 @@ public class BallList {
 		// Generate some random velocities
 		for (int i = 0; i < numvelocities; i++) {
 			velocities[i] = new Vector3 (Random.Range (-maxvel, maxvel), Random.Range (-maxvel, maxvel), Random.Range (-maxvel, maxvel));
-			totalmomentum = totalmomentum + velocities [i]; // Calculate total linear momentum (TODO: assumes each mass is 1)
+			totalmomentum = totalmomentum + masses[i]*velocities [i]; // Calculate total linear momentum 
 		}
 
 		// If there's more than one ball, correct velocities so total linear momentum is zero
 		if (numvelocities > 1) {
 			for (int i = 0; i < numvelocities; i++) {
-				velocities [i] = velocities [i] - (totalmomentum / (float)numvelocities);
+				velocities [i] = (masses[i]*velocities [i] - (totalmomentum / (float)numvelocities))/masses[i];
 			}
 		}
 
