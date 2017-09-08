@@ -106,11 +106,12 @@ public class Ball {
 	public Vector3 velocity = Vector3.one; // the 3d velocity of the ball
 
 	// Ball constructor
-	public Ball(Transform parent, Vector3 position, float diameter){
+	public Ball(Transform parent, Vector3 initposition, Vector3 initvelocity, float diameter){
 		gameobj.name = "Ball"; // name the sphere
 		gameobj.transform.parent = parent; // set as child
-		gameobj.transform.position = position;
-		gameobj.transform.localScale = Vector3.one * diameter;
+		gameobj.transform.position = initposition; // initial position
+		velocity = initvelocity; // initial velocity
+		gameobj.transform.localScale = Vector3.one * diameter; // set diameter
 	}
 
 	public void MoveBall(float timestep){
@@ -137,13 +138,16 @@ public class BallList {
 	// Create and add Balls to the list
 	public void AddBall(int numballs){
 		Vector3[] positions = new Vector3[numballs]; // ball positions
+		Vector3[] velocities = new Vector3[numballs]; // ball velocities
 		float diameter = 1.0f; // ball radius
 		float maxpos = boxsize - diameter/2; // maximum initial position of balls (can't overlap wall 
+		float maxvel = 1.0f;
 		MakeRandomPositions(numballs, maxpos, ref positions, out diameter);
+		MakeRandomVelocities (numballs, maxvel, ref velocities);
 
 		// Create and add each Ball
 		for (int i = 0; i < numballs; i++){
-			balls.Add (new Ball (gameobj.transform, positions [i], diameter)); // add a new ball
+			balls.Add (new Ball (gameobj.transform, positions [i], velocities[i], diameter)); // add a new ball
 		}
 	}
 
@@ -202,6 +206,26 @@ public class BallList {
 			array [r] = tmp;
 		}
 	
+	}
+
+	public void MakeRandomVelocities(int numvelocities, float maxvel, ref Vector3[] velocities){
+	
+		// Initialize total momentum vector
+		Vector3 totalmomentum = Vector3.zero;
+
+		// Generate some random velocities
+		for (int i = 0; i < numvelocities; i++) {
+			velocities[i] = new Vector3 (Random.Range (-maxvel, maxvel), Random.Range (-maxvel, maxvel), Random.Range (-maxvel, maxvel));
+			totalmomentum = totalmomentum + velocities [i]; // Calculate total linear momentum (TODO: assumes each mass is 1)
+		}
+
+		// If there's more than one ball, correct velocities so total linear momentum is zero
+		if (numvelocities > 1) {
+			for (int i = 0; i < numvelocities; i++) {
+				velocities [i] = velocities [i] - (totalmomentum / (float)numvelocities);
+			}
+		}
+
 	}
 
 	public void IntegrateMotion(float timestep){
