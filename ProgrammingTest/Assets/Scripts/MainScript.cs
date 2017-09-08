@@ -7,10 +7,16 @@ public class MainScript : MonoBehaviour {
 
 	public int numballs;
 	public float boxsize;
+	private Box box;
+	private BallList ballList;
 
 	void Start(){
-		Box box = new Box (transform, boxsize);
-		BallList ballList = new BallList (box.gameobj.transform, boxsize, numballs);
+		box = new Box (transform, boxsize);
+		ballList = new BallList (box.gameobj.transform, boxsize, numballs);
+	}
+
+	void FixedUpdate(){
+		ballList.IntegrateMotion (Time.fixedTime);
 	}
 }
 
@@ -97,7 +103,7 @@ public class Edge{
 public class Ball {
 
 	public GameObject gameobj = GameObject.CreatePrimitive (PrimitiveType.Sphere); // a sphere in unity
-	public Vector3 velocity = Vector3.zero; // the 3d velocity of the ball
+	public Vector3 velocity = Vector3.one; // the 3d velocity of the ball
 
 	// Ball constructor
 	public Ball(Transform parent, Vector3 position, float diameter){
@@ -105,6 +111,10 @@ public class Ball {
 		gameobj.transform.parent = parent; // set as child
 		gameobj.transform.position = position;
 		gameobj.transform.localScale = Vector3.one * diameter;
+	}
+
+	public void MoveBall(float timestep){
+		gameobj.transform.position += velocity * timestep;
 	}
 	
 }
@@ -192,6 +202,15 @@ public class BallList {
 			array [r] = tmp;
 		}
 	
+	}
+
+	public void IntegrateMotion(float timestep){
+
+		for (int i = 0; i < balls.Count; i++) {
+
+			balls [i].MoveBall (timestep);
+		}
+
 	}
 
 }
