@@ -119,6 +119,25 @@ public class Ball {
 	public void MoveBall(float timestep){
 		gameobj.transform.position += velocity * timestep;
 	}
+
+	public void CheckBoundary(float boundary){
+
+		float diameter = gameobj.transform.localScale.x; // get the diameter (only need one dimension because it's a sphere)
+		float maxpos = boundary-diameter/2; // maximum position to keep ball inside walls
+
+		if (Mathf.Abs(gameobj.transform.position.x) >= maxpos){
+			velocity.x *= -1;
+		}
+
+		if (Mathf.Abs(gameobj.transform.position.y) >= maxpos){
+			velocity.y *= -1;
+		}
+
+		if (Mathf.Abs(gameobj.transform.position.z) >= maxpos){
+			velocity.z *= -1;
+		}
+
+	}
 	
 }
 
@@ -144,7 +163,7 @@ public class BallList {
 		float[] masses = Enumerable.Repeat(1f,numballs).ToArray(); // ball masses
 
 		float diameter = 1.0f; // ball radius
-		float maxpos = boxsize - diameter/2; // maximum initial position of balls (can't overlap wall 
+		float maxpos = boxsize - diameter/2; //maximum position of balls (make sure balls don't initially overlap wall)
 		MakeRandomPositions(numballs, maxpos, ref positions, out diameter); // generate random positions (and set diameter)
 
 		float velocitycap = 50f; // limit on velocity for viewing purposes
@@ -240,7 +259,10 @@ public class BallList {
 
 		for (int i = 0; i < balls.Count; i++) {
 
+			balls [i].CheckBoundary (boxsize);
+
 			balls [i].MoveBall (timestep);
+
 		}
 
 	}
