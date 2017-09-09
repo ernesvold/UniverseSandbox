@@ -235,6 +235,7 @@ public class BallList {
 	
 	}
 
+	// Generate a list of random velocities with a total linear momentum of zero
 	public void MakeRandomVelocities(int numvelocities, float maxvel, ref float[] masses, ref Vector3[] velocities){
 	
 		// Initialize total momentum vector
@@ -255,16 +256,46 @@ public class BallList {
 
 	}
 
+	// Integrate the motion of the balls, including collision detection and resolution
 	public void IntegrateMotion(float timestep){
+
+		CheckCollisions_Direct ();
 
 		for (int i = 0; i < balls.Count; i++) {
 
 			balls [i].CheckBoundary (boxsize);
 
 			balls [i].MoveBall (timestep);
+		}
+
+	}
+
+	// A laughably inefficient collision detection algorithm
+	public void CheckCollisions_Direct (){
+
+		for (int i = 0; i < balls.Count - 1; i++) {
+			
+			for (int j = i + 1; j < balls.Count; j++) {
+
+				Vector3 ball1pos = balls [i].gameobj.transform.position;
+				Vector3 ball2pos = balls [j].gameobj.transform.position;
+				float ball1radius = balls [i].gameobj.transform.localScale.x/2;
+				float ball2radius = balls [j].gameobj.transform.localScale.x/2;
+				float distance = Vector3.Distance(ball1pos, ball2pos);	
+
+				if (distance <= (ball1radius+ball2radius)){
+					CollisionResolve (balls[i], balls[j]);
+				}
+
+			}
 
 		}
 
+	}
+
+	// Resolve collision between two balls
+	public void CollisionResolve(Ball ball1, Ball ball2){
+		Debug.Log ("Collision!");
 	}
 
 }
