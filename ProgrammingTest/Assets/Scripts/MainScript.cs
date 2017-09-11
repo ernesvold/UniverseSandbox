@@ -177,6 +177,12 @@ public class BallList {
 		}
 	}
 
+	// Create test ball scenario
+	public void AddBall_Test(){
+		balls.Add (new Ball (gameobj.transform, new Vector3 (3, 0, 0), new Vector3 (-1, 0, 0), 1.0f, 1.0f));
+		balls.Add (new Ball (gameobj.transform, new Vector3 (-3, 0, 0), new Vector3 (1, 0, 0), 1.0f, 1.0f));
+	}
+
 	// Generate a list of random-looking positions
 	public void MakeRandomPositions(int numpositions, float maxpos, ref Vector3[] positions, out float diameter){
 		int numpts1d = (int) Mathf.Ceil(Mathf.Pow(numpositions,(float)1.0/3)); // number of points in one dimension in the grid
@@ -295,7 +301,15 @@ public class BallList {
 
 	// Resolve collision between two balls
 	public void CollisionResolve(Ball ball1, Ball ball2){
-		Debug.Log ("Collision!");
+		Vector3 normal = ball2.gameobj.transform.position - ball1.gameobj.transform.position;
+		normal.Normalize ();
+		float n1 = Vector3.Dot (ball1.velocity, normal);
+		float n2 = Vector3.Dot (ball2.velocity, normal);
+		float term = (2.0f * (n2 - n1)) / (ball1.mass + ball2.mass);
+		Vector3 newvelocity1 = ball1.velocity + term * ball2.mass * normal;
+		Vector3 newvelocity2 = ball2.velocity - term * ball1.mass * normal;
+		ball1.velocity = newvelocity1;
+		ball2.velocity = newvelocity2;
 	}
 
 }
