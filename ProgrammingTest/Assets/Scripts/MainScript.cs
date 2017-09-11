@@ -182,11 +182,11 @@ public class BallList {
 
 	// Create test ball scenario
 	public void AddBall_Test(){
-		balls.Add (new Ball (gameobj.transform, new Vector3 (3, 0, 0), new Vector3 (-10, 0, 0), 1.0f, 1.0f));
-		//balls.Add (new Ball (gameobj.transform, new Vector3 (-3, 0, 0), new Vector3 (10, 0, 0), 1.0f, 1.0f));
+		balls.Add (new Ball (gameobj.transform, new Vector3 (-1, 0, 0), new Vector3 (-1, 0, 0), 1.0f, 1.0f));
+		balls.Add (new Ball (gameobj.transform, new Vector3 (1, 0, 0), new Vector3 (1, 0, 0), 1.0f, 1.0f));
 		balls [0].rd.material.color = Color.black;
-		balls [0].gameobj.transform.localScale = Vector3.one * 2.0f;
-		//balls [1].gameobj.transform.localScale = Vector3.one * 2.0f;
+		balls [0].gameobj.transform.localScale = Vector3.one * 5.0f;
+		balls [1].gameobj.transform.localScale = Vector3.one * 5.0f;
 	}
 
 	// Generate a list of random-looking positions
@@ -288,14 +288,18 @@ public class BallList {
 		for (int i = 0; i < balls.Count - 1; i++) {
 			
 			for (int j = i + 1; j < balls.Count; j++) {
-
+				
 				Vector3 ball1pos = balls [i].gameobj.transform.position;
 				Vector3 ball2pos = balls [j].gameobj.transform.position;
+				Vector3 ball1vec = balls [i].velocity;
+				Vector3 ball2vec = balls [j].velocity;
+				Vector3 relativepos = ball2pos - ball1pos;
+				Vector3 relativevel = ball2vec - ball1vec;
 				float ball1radius = balls [i].gameobj.transform.localScale.x/2;
 				float ball2radius = balls [j].gameobj.transform.localScale.x/2;
 				float distance = Vector3.Distance(ball1pos, ball2pos);	
 
-				if (distance <= (ball1radius+ball2radius)){
+				if (distance <= (ball1radius+ball2radius) && Vector3.Dot(relativepos, relativevel) <= 0){
 					CollisionResolve (balls[i], balls[j]);
 				}
 
