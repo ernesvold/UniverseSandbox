@@ -105,6 +105,7 @@ public class Ball {
 	public GameObject gameobj = GameObject.CreatePrimitive (PrimitiveType.Sphere); // a sphere in unity
 	public Vector3 velocity = Vector3.one; // the 3d velocity of the ball
 	public float mass = 1f; // the mass of the ball
+	public Renderer rd;
 
 	// Ball constructor
 	public Ball(Transform parent, Vector3 initposition, Vector3 initvelocity, float diameter, float ballmass){
@@ -114,6 +115,7 @@ public class Ball {
 		velocity = initvelocity; // initial velocity
 		gameobj.transform.localScale = Vector3.one * diameter; // set diameter
 		mass = ballmass; // set mass
+		rd = gameobj.GetComponent<Renderer>();
 	}
 
 	public void MoveBall(float timestep){
@@ -125,15 +127,15 @@ public class Ball {
 		float diameter = gameobj.transform.localScale.x; // get the diameter (only need one dimension because it's a sphere)
 		float maxpos = boundary-diameter/2; // maximum position to keep ball inside walls
 
-		if (Mathf.Abs(gameobj.transform.position.x) >= maxpos){
+		if (Mathf.Abs(gameobj.transform.position.x) >= maxpos && gameobj.transform.position.x * velocity.x > 0){
 			velocity.x *= -1;
 		}
 
-		if (Mathf.Abs(gameobj.transform.position.y) >= maxpos){
+		if (Mathf.Abs(gameobj.transform.position.y) >= maxpos && gameobj.transform.position.y * velocity.y > 0){
 			velocity.y *= -1;
 		}
 
-		if (Mathf.Abs(gameobj.transform.position.z) >= maxpos){
+		if (Mathf.Abs(gameobj.transform.position.z) >= maxpos && gameobj.transform.position.z * velocity.z > 0){
 			velocity.z *= -1;
 		}
 
@@ -154,6 +156,7 @@ public class BallList {
 		gameobj.transform.parent = parent; // set as child
 		boxsize = inputboxsize; // get boxsize
 		AddBall (numballs);
+		//AddBall_Test();
 	}
 
 	// Create and add Balls to the list
@@ -179,8 +182,11 @@ public class BallList {
 
 	// Create test ball scenario
 	public void AddBall_Test(){
-		balls.Add (new Ball (gameobj.transform, new Vector3 (3, 0, 0), new Vector3 (-1, 0, 0), 1.0f, 1.0f));
-		balls.Add (new Ball (gameobj.transform, new Vector3 (-3, 0, 0), new Vector3 (1, 0, 0), 1.0f, 1.0f));
+		balls.Add (new Ball (gameobj.transform, new Vector3 (3, 0, 0), new Vector3 (-10, 0, 0), 1.0f, 1.0f));
+		//balls.Add (new Ball (gameobj.transform, new Vector3 (-3, 0, 0), new Vector3 (10, 0, 0), 1.0f, 1.0f));
+		balls [0].rd.material.color = Color.black;
+		balls [0].gameobj.transform.localScale = Vector3.one * 2.0f;
+		//balls [1].gameobj.transform.localScale = Vector3.one * 2.0f;
 	}
 
 	// Generate a list of random-looking positions
@@ -305,9 +311,9 @@ public class BallList {
 		normal.Normalize ();
 		float n1 = Vector3.Dot (ball1.velocity, normal);
 		float n2 = Vector3.Dot (ball2.velocity, normal);
-		float term = (2.0f * (n2 - n1)) / (ball1.mass + ball2.mass);
-		Vector3 newvelocity1 = ball1.velocity + term * ball2.mass * normal;
-		Vector3 newvelocity2 = ball2.velocity - term * ball1.mass * normal;
+		float term = (2.0f * (n1 - n2)) / (ball1.mass + ball2.mass);
+		Vector3 newvelocity1 = ball1.velocity - term * ball2.mass * normal;
+		Vector3 newvelocity2 = ball2.velocity + term * ball1.mass * normal;
 		ball1.velocity = newvelocity1;
 		ball2.velocity = newvelocity2;
 	}
