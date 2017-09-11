@@ -122,21 +122,31 @@ public class Ball {
 		gameobj.transform.position += velocity * timestep;
 	}
 
+	// Detect and resolve collisions with walls
 	public void CheckBoundary(float boundary){
 
 		float diameter = gameobj.transform.localScale.x; // get the diameter (only need one dimension because it's a sphere)
 		float maxpos = boundary-diameter/2; // maximum position to keep ball inside walls
 
-		if (Mathf.Abs(gameobj.transform.position.x) >= maxpos && gameobj.transform.position.x * velocity.x > 0){
-			velocity.x *= -1;
+		// Check x-direction boundaries
+		if (Mathf.Abs(gameobj.transform.position.x) >= maxpos){ // If the ball is outside the box
+			if (gameobj.transform.position.x * velocity.x > 0) { // And heading away from the box
+				velocity.x *= -1; // Turn it back in the right direction
+			}
 		}
 
-		if (Mathf.Abs(gameobj.transform.position.y) >= maxpos && gameobj.transform.position.y * velocity.y > 0){
-			velocity.y *= -1;
+		// Check y-direction boundaries
+		if (Mathf.Abs(gameobj.transform.position.y) >= maxpos){
+			if (gameobj.transform.position.y * velocity.y > 0) {
+				velocity.y *= -1;
+			}
 		}
 
-		if (Mathf.Abs(gameobj.transform.position.z) >= maxpos && gameobj.transform.position.z * velocity.z > 0){
-			velocity.z *= -1;
+		// Check z-direction boundaries
+		if (Mathf.Abs(gameobj.transform.position.z) >= maxpos){
+			if (gameobj.transform.position.z * velocity.z > 0) {
+				velocity.z *= -1;
+			}
 		}
 
 	}
@@ -285,22 +295,26 @@ public class BallList {
 	// A laughably inefficient collision detection algorithm
 	public void CheckCollisions_Direct (){
 
+		// For every ball in the list
 		for (int i = 0; i < balls.Count - 1; i++) {
-			
+
+			// Check whether it's colliding with another ball
 			for (int j = i + 1; j < balls.Count; j++) {
 				
-				Vector3 ball1pos = balls [i].gameobj.transform.position;
-				Vector3 ball2pos = balls [j].gameobj.transform.position;
-				Vector3 ball1vec = balls [i].velocity;
-				Vector3 ball2vec = balls [j].velocity;
-				Vector3 relativepos = ball2pos - ball1pos;
-				Vector3 relativevel = ball2vec - ball1vec;
-				float ball1radius = balls [i].gameobj.transform.localScale.x/2;
-				float ball2radius = balls [j].gameobj.transform.localScale.x/2;
-				float distance = Vector3.Distance(ball1pos, ball2pos);	
+				Vector3 ball1pos = balls [i].gameobj.transform.position; // Ball 1 position
+				Vector3 ball2pos = balls [j].gameobj.transform.position; // Ball 2 position
+				Vector3 ball1vec = balls [i].velocity; // Ball 1 velocity
+				Vector3 ball2vec = balls [j].velocity; // Ball 2 velocity
+				Vector3 relativepos = ball2pos - ball1pos; // Relative position
+				Vector3 relativevel = ball2vec - ball1vec; // Relative velocity
+				float ball1radius = balls [i].gameobj.transform.localScale.x/2; // Ball 1 radius 
+				float ball2radius = balls [j].gameobj.transform.localScale.x/2; // Ball 2 radius
+				float distance = relativepos.magnitude; // Distance between balls
 
-				if (distance <= (ball1radius+ball2radius) && Vector3.Dot(relativepos, relativevel) <= 0){
-					CollisionResolve (balls[i], balls[j]);
+				if (distance <= (ball1radius+ball2radius)){ // If the two balls overlap
+					if (Vector3.Dot (relativepos, relativevel) <= 0) { // And they are approaching each other
+						CollisionResolve (balls [i], balls [j]); // Trigger collision resolution
+					}
 				}
 
 			}
@@ -311,10 +325,16 @@ public class BallList {
 
 	// Resolve collision between two balls
 	public void CollisionResolve(Ball ball1, Ball ball2){
-		Vector3 normal = ball2.gameobj.transform.position - ball1.gameobj.transform.position;
+
+		// Calculate normal vector of collision point
+		Vector3 normal = ball2.gameobj.transform.position - ball1.gameobj.transform.position; 
 		normal.Normalize ();
+
+		// Calculate components of velocity vector along normal
 		float n1 = Vector3.Dot (ball1.velocity, normal);
 		float n2 = Vector3.Dot (ball2.velocity, normal);
+
+		// Calculate new velocities to converse momentum and kinetic energy
 		float term = (2.0f * (n1 - n2)) / (ball1.mass + ball2.mass);
 		Vector3 newvelocity1 = ball1.velocity - term * ball2.mass * normal;
 		Vector3 newvelocity2 = ball2.velocity + term * ball1.mass * normal;
