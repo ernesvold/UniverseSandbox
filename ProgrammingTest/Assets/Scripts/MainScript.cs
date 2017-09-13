@@ -150,6 +150,30 @@ public class Ball {
 		}
 
 	}
+
+	public bool WillCollideWith(Ball otherBall, float timestep){
+		Vector3 ball1pos = gameobj.transform.position; // Ball 1 position
+		Vector3 ball2pos = otherBall.gameobj.transform.position; // Ball 2 position
+		Vector3 ball1vec = velocity; // Ball 1 velocity
+		Vector3 ball2vec = otherBall.velocity; // Ball 2 velocity
+		Vector3 relativepos = ball2pos - ball1pos; // Relative position
+		Vector3 relativevel = ball2vec - ball1vec; // Relative velocity
+		float ball1radius = gameobj.transform.localScale.x/2; // Ball 1 radius 
+		float ball2radius = otherBall.gameobj.transform.localScale.x/2; // Ball 2 radius
+		float distance = relativepos.magnitude; // Distance between balls
+
+		if (distance > (ball1radius + ball2radius)) { // If the two balls don't overlap
+			return false;
+		}
+
+		if (Vector3.Dot (relativepos, relativevel) <= 0) { // And they are not approaching each other
+			return false;
+		}
+
+		// If none of the escape conditions have been met, the balls are colliding
+		return true;
+			
+	}
 	
 }
 
@@ -165,8 +189,8 @@ public class BallList {
 		gameobj.name = "BallList"; // name the empty game object
 		gameobj.transform.parent = parent; // set as child
 		boxsize = inputboxsize; // get boxsize
-		AddBall (numballs);
-		//AddBall_Test();
+		//AddBall (numballs);
+		AddBall_Test();
 	}
 
 	// Create and add Balls to the list
@@ -192,8 +216,8 @@ public class BallList {
 
 	// Create test ball scenario
 	public void AddBall_Test(){
-		balls.Add (new Ball (gameobj.transform, new Vector3 (-1, 0, 0), new Vector3 (-1, 0, 0), 1.0f, 1.0f));
-		balls.Add (new Ball (gameobj.transform, new Vector3 (1, 0, 0), new Vector3 (1, 0, 0), 1.0f, 1.0f));
+		balls.Add (new Ball (gameobj.transform, new Vector3 (5, 0, 0), new Vector3 (-20, 0, 0), 1.0f, 1.0f));
+		balls.Add (new Ball (gameobj.transform, new Vector3 (-5, 0, 0), new Vector3 (20, 0, 0), 1.0f, 1.0f));
 		balls [0].rd.material.color = Color.black;
 		balls [0].gameobj.transform.localScale = Vector3.one * 5.0f;
 		balls [1].gameobj.transform.localScale = Vector3.one * 5.0f;
@@ -300,21 +324,11 @@ public class BallList {
 
 			// Check whether it's colliding with another ball
 			for (int j = i + 1; j < balls.Count; j++) {
-				
-				Vector3 ball1pos = balls [i].gameobj.transform.position; // Ball 1 position
-				Vector3 ball2pos = balls [j].gameobj.transform.position; // Ball 2 position
-				Vector3 ball1vec = balls [i].velocity; // Ball 1 velocity
-				Vector3 ball2vec = balls [j].velocity; // Ball 2 velocity
-				Vector3 relativepos = ball2pos - ball1pos; // Relative position
-				Vector3 relativevel = ball2vec - ball1vec; // Relative velocity
-				float ball1radius = balls [i].gameobj.transform.localScale.x/2; // Ball 1 radius 
-				float ball2radius = balls [j].gameobj.transform.localScale.x/2; // Ball 2 radius
-				float distance = relativepos.magnitude; // Distance between balls
 
-				if (distance <= (ball1radius+ball2radius)){ // If the two balls overlap
-					if (Vector3.Dot (relativepos, relativevel) <= 0) { // And they are approaching each other
-						CollisionResolve (balls [i], balls [j]); // Trigger collision resolution
-					}
+				if (balls [i].WillCollideWith (balls [j], Time.fixedDeltaTime)) {
+					Debug.Log ("Collision occuring!");
+					Debug.Break ();
+					//CollisionResolve (balls [i], balls [j]); // Trigger collision resolution
 				}
 
 			}
@@ -335,9 +349,9 @@ public class BallList {
 		float n2 = Vector3.Dot (ball2.velocity, normal);
 
 		// Calculate new velocities to converse momentum and kinetic energy
-		float term = (2.0f * (n1 - n2)) / (ball1.mass + ball2.mass);
-		Vector3 newvelocity1 = ball1.velocity - term * ball2.mass * normal;
-		Vector3 newvelocity2 = ball2.velocity + term * ball1.mass * normal;
+		float deltaP = (2.0f * (n1 - n2)) / (ball1.mass + ball2.mass);
+		Vector3 newvelocity1 = ball1.velocity - deltaP * ball2.mass * normal;
+		Vector3 newvelocity2 = ball2.velocity + deltaP * ball1.mass * normal;
 		ball1.velocity = newvelocity1;
 		ball2.velocity = newvelocity2;
 	}
