@@ -152,21 +152,54 @@ public class Ball {
 	}
 
 	public bool WillCollideWith(Ball otherBall, float timestep){
+		// Get the position and velocity vectors and the radii of the two balls
 		Vector3 ball1pos = gameobj.transform.position; // Ball 1 position
 		Vector3 ball2pos = otherBall.gameobj.transform.position; // Ball 2 position
-		Vector3 ball1vec = velocity; // Ball 1 velocity
-		Vector3 ball2vec = otherBall.velocity; // Ball 2 velocity
-		Vector3 relativepos = ball2pos - ball1pos; // Relative position
-		Vector3 relativevel = ball2vec - ball1vec; // Relative velocity
+		Vector3 ball1vel = velocity; // Ball 1 velocity
+		Vector3 ball2vel = otherBall.velocity; // Ball 2 velocity
 		float ball1radius = gameobj.transform.localScale.x/2; // Ball 1 radius 
 		float ball2radius = otherBall.gameobj.transform.localScale.x/2; // Ball 2 radius
-		float distance = relativepos.magnitude; // Distance between balls
 
-		if (distance > (ball1radius + ball2radius)) { // If the two balls don't overlap
+		// Calculate the position and velocity of Ball 2 relative to Ball 1
+		Vector3 relativePos = ball2pos - ball1pos; // relative position
+		Vector3 relativeVel = ball2vel - ball1vel; // relative velocity
+		float edgeDistance = relativePos.magnitude - (ball1radius + ball2radius); // distance between edges of balls
+		Vector3 dispVec = relativeVel * timestep; // displacement vector of Ball 2 in next timestep
+		float displacement = dispVec.magnitude; // magnitude of displacement vector
+
+		// If Ball 2 won't move the distance between the balls in the next timestep, no collision
+		if (displacement < edgeDistance) {
+			//Debug.Log ("Too far.");
 			return false;
 		}
 
-		if (Vector3.Dot (relativepos, relativevel) <= 0) { // And they are not approaching each other
+		// If Ball 2 is not approaching Ball 1, no collision
+		if (Vector3.Dot (relativePos, relativeVel) > 0) { 
+			//Debug.Log ("Not approaching.");
+			return false;
+		}
+
+		// If the distance between the balls at the moment of closest approach is greater than the sum of
+		// their radii, no collision
+		float centerDistance = relativePos.magnitude; // distance between centers of balls
+		float closAppDisp = Vector3.Dot(dispVec.normalized, relativePos); // displacement of Ball 2 at moment of closest approach
+		float closDistSquared = centerDistance * centerDistance - closAppDisp * closAppDisp; // squared distance between balls at closest approach
+		float sumRadiiSquared = (ball1radius + ball2radius) * (ball1radius + ball2radius); // sum of ball radii, squared
+		if (closDistSquared > sumRadiiSquared) {
+			//Debug.Log ("Flyby");
+			return false;
+		}
+
+		// If the displacement vector of Ball 2 is too short to reach the contact point, no collision
+		float offsetSquared = sumRadiiSquared - closDistSquared; // difference between displacement at closest approach and displacement at contact
+		// Check for negative number before you try to take a square root
+		if (offsetSquared < 0) { 
+			//Debug.Log ("No triangle");
+			return false;
+		}
+		float contactDisp = closAppDisp - Mathf.Sqrt(offsetSquared); // displacement of Ball 2 at moment of contact
+		if (contactDisp > displacement) {
+			//Debug.Log ("Wrong direction");
 			return false;
 		}
 
@@ -189,8 +222,8 @@ public class BallList {
 		gameobj.name = "BallList"; // name the empty game object
 		gameobj.transform.parent = parent; // set as child
 		boxsize = inputboxsize; // get boxsize
-		//AddBall (numballs);
-		AddBall_Test();
+		AddBall (numballs);
+		//AddBall_Test();
 	}
 
 	// Create and add Balls to the list
@@ -326,9 +359,9 @@ public class BallList {
 			for (int j = i + 1; j < balls.Count; j++) {
 
 				if (balls [i].WillCollideWith (balls [j], Time.fixedDeltaTime)) {
-					Debug.Log ("Collision occuring!");
-					Debug.Break ();
-					//CollisionResolve (balls [i], balls [j]); // Trigger collision resolution
+
+					CollisionResolve (balls [i], balls [j]); // Trigger collision resolution
+
 				}
 
 			}
