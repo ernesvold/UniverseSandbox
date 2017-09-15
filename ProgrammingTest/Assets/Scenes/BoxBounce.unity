@@ -135,7 +135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6606fe20ae54b45caa2be7406eb0786d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numballs: 64
+  numballs: 100
   boxsize: 10
 --- !u!4 &428065843
 Transform:
