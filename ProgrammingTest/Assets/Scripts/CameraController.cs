@@ -30,22 +30,12 @@ public class CameraController : MonoBehaviour {
 		// Rotate around y-axis with left and right arrow keys
 		if (Input.GetKey (KeyCode.LeftArrow)) {
 			float angle = -angularspeed*Time.deltaTime; // angle to rotate through (rad)
-			float sinAngle = Mathf.Sin (angle);
-			float cosAngle = Mathf.Cos (angle);
-			Vector3 newpos = new Vector3 (cosAngle*transform.position.x-sinAngle*transform.position.z,0,
-				sinAngle*transform.position.x+cosAngle*transform.position.z);
-			transform.position = newpos;
-			transform.Rotate(new Vector3(0,-angle*180/Mathf.PI,0));
+			transform.RotateAround (Vector3.zero, Vector3.up, angle*180/Mathf.PI);
 		}
 
 		if (Input.GetKey (KeyCode.RightArrow)) {
 			float angle = angularspeed*Time.deltaTime;
-			float sinAngle = Mathf.Sin (angle);
-			float cosAngle = Mathf.Cos (angle);
-			Vector3 newpos = new Vector3 (cosAngle*transform.position.x-sinAngle*transform.position.z,0,
-				sinAngle*transform.position.x+cosAngle*transform.position.z);
-			transform.position = newpos;
-			transform.Rotate(new Vector3(0,-angle*180/Mathf.PI,0));
+			transform.RotateAround (Vector3.zero, Vector3.up, angle*180/Mathf.PI);
 		}
 	
 
