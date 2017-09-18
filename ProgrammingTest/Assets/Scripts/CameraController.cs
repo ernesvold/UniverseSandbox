@@ -12,22 +12,25 @@ public class CameraController : MonoBehaviour {
 	private float mininclination = -60f; // minimum camera inclination
 
 	void Start () {
+		ResetCamera ();
+	}
+
+	public void ResetCamera(){
 		// Move camera back far enough to see entire box
 		float boxsize = GameObject.Find ("MainGameObject").GetComponent<MainScript> ().boxsize;
 		transform.position = new Vector3 (0, 0, -4 * boxsize);
+		transform.eulerAngles = new Vector3 (0, 0, 0);
 
 		// Set minimum and maximum zoom relative to box size
 		minzoom = boxsize/10f; 
 		maxzoom = 10f * boxsize;
 	}
-	
 
 	void Update () {
 
 		// Zoom in and out with W and S
 		if (Input.GetKey (KeyCode.W)) {
 			Vector3 zoom = transform.position.normalized * zoomspeed * Time.deltaTime;
-			Debug.Log ("Dist to center = "+transform.position.sqrMagnitude);
 			if (transform.position.sqrMagnitude - zoom.sqrMagnitude > minzoom * minzoom) {
 				transform.position -= zoom;
 			}
@@ -35,7 +38,6 @@ public class CameraController : MonoBehaviour {
 
 		if (Input.GetKey (KeyCode.S)) {
 			Vector3 zoom = transform.position.normalized * zoomspeed * Time.deltaTime;
-			Debug.Log ("Dist to center = "+transform.position.sqrMagnitude);
 			if (transform.position.sqrMagnitude + zoom.sqrMagnitude < maxzoom * maxzoom) {
 				transform.position += zoom;
 			}

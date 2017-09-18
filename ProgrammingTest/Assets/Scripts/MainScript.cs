@@ -11,13 +11,33 @@ public class MainScript : MonoBehaviour {
 	private BallList ballList;
 
 	void Start(){
-		box = new Box (transform, boxsize);
-		ballList = new BallList (box.gameobj.transform, boxsize, numballs);
+		int initnumballs = 6;
+		float initboxsize = 10f;
+		RestartSimulation (initnumballs, initboxsize);
 	}
 
 	void FixedUpdate(){
 		ballList.IntegrateMotion (Time.fixedDeltaTime);
 	}
+
+	public void RestartSimulation(int newnumballs, float newboxsize){
+		// Apply new user parameters
+		numballs = newnumballs;
+		boxsize = newboxsize;
+
+		// Destroy current box and balls, if they exist
+		if (box != null) {
+			Destroy (box.gameobj);
+		}
+		if (ballList != null){
+			Destroy (ballList.gameobj);
+		}
+
+		// Create new box and balls with user parameters
+		box = new Box (transform, boxsize);
+		ballList = new BallList (box.gameobj.transform, boxsize, numballs);
+	}
+
 }
 
 public class Box{
@@ -118,6 +138,7 @@ public class Ball {
 		rd = gameobj.GetComponent<Renderer>();
 	}
 
+	// Move the ball by its velocity
 	public void MoveBall(float timestep){
 		gameobj.transform.position += velocity * timestep;
 	}
@@ -151,7 +172,39 @@ public class Ball {
 
 	}
 
+	// Determine whether this ball is currently overlapping another ball
+	public bool IsCollidingWith(Ball otherBall){
+		
+		// Get the position and velocity vectors and the radii of the two balls
+		Vector3 ball1pos = gameobj.transform.position; // Ball 1 position
+		Vector3 ball2pos = otherBall.gameobj.transform.position; // Ball 2 position
+		Vector3 ball1vel = velocity; // Ball 1 velocity
+		Vector3 ball2vel = otherBall.velocity; // Ball 2 velocity
+		float ball1radius = gameobj.transform.localScale.x/2; // Ball 1 radius 
+		float ball2radius = otherBall.gameobj.transform.localScale.x/2; // Ball 2 radius
+
+		// Calculate the position and velocity of Ball 2 relative to Ball 1
+		Vector3 relativePos = ball2pos - ball1pos; // relative position
+		Vector3 relativeVel = ball2vel - ball1vel; // relative velocity
+		float sumRadiiSquared = (ball1radius + ball2radius) * (ball1radius + ball2radius); // sum of ball radii, squared
+
+		// If the balls are not overlapping, no collision
+		if (relativePos.sqrMagnitude > sumRadiiSquared) {
+			return false;
+		}
+
+		// If the balls are not approaching one another, no collision
+		if (Vector3.Dot (relativePos, relativeVel) > 0) {
+			return false;
+		}
+
+		// If none of the escape conditions have been met, the balls are colliding
+		return true;
+	}
+
+	// Determine whether this ball with collide with another ball in the next timestep
 	public bool WillCollideWith(Ball otherBall, float timestep){
+		
 		// Get the position and velocity vectors and the radii of the two balls
 		Vector3 ball1pos = gameobj.transform.position; // Ball 1 position
 		Vector3 ball2pos = otherBall.gameobj.transform.position; // Ball 2 position
@@ -252,8 +305,8 @@ public class BallList {
 		balls.Add (new Ball (gameobj.transform, new Vector3 (5, 0, 0), new Vector3 (-20, 0, 0), 1.0f, 1.0f));
 		balls.Add (new Ball (gameobj.transform, new Vector3 (-5, 0, 0), new Vector3 (20, 0, 0), 1.0f, 1.0f));
 		balls [0].rd.material.color = Color.black;
-		balls [0].gameobj.transform.localScale = Vector3.one * 5.0f;
-		balls [1].gameobj.transform.localScale = Vector3.one * 5.0f;
+		balls [0].gameobj.transform.localScale = Vector3.one * 2.0f;
+		balls [1].gameobj.transform.localScale = Vector3.one * 2.0f;
 	}
 
 	// Generate a list of random-looking positions
@@ -338,7 +391,7 @@ public class BallList {
 	// Integrate the motion of the balls, including collision detection and resolution
 	public void IntegrateMotion(float timestep){
 
-		CheckCollisions_Direct ();
+		CheckCollisions_Direct (timestep);
 
 		for (int i = 0; i < balls.Count; i++) {
 
@@ -350,7 +403,7 @@ public class BallList {
 	}
 
 	// A laughably inefficient collision detection algorithm
-	public void CheckCollisions_Direct (){
+	public void CheckCollisions_Direct (float timestep){
 
 		// For every ball in the list
 		for (int i = 0; i < balls.Count - 1; i++) {
@@ -358,7 +411,7 @@ public class BallList {
 			// Check whether it's colliding with another ball
 			for (int j = i + 1; j < balls.Count; j++) {
 
-				if (balls [i].WillCollideWith (balls [j], Time.fixedDeltaTime)) {
+				if (balls[i].IsCollidingWith(balls[j])){
 
 					CollisionResolve (balls [i], balls [j]); // Trigger collision resolution
 
