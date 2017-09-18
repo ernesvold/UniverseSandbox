@@ -126,6 +126,7 @@ public class Ball {
 	public Vector3 velocity = Vector3.one; // the 3d velocity of the ball
 	public float mass = 1f; // the mass of the ball
 	public Renderer rd;
+	public AudioSource ballCollideAudio;
 
 	// Ball constructor
 	public Ball(Transform parent, Vector3 initposition, Vector3 initvelocity, float diameter, float ballmass){
@@ -136,6 +137,11 @@ public class Ball {
 		gameobj.transform.localScale = Vector3.one * diameter; // set diameter
 		mass = ballmass; // set mass
 		rd = gameobj.GetComponent<Renderer>();
+
+		// Add audio components
+		ballCollideAudio = gameobj.AddComponent<AudioSource> ();
+		AudioClip ballCollideClip = Resources.Load<AudioClip> ("ballCollide");
+		ballCollideAudio.clip = ballCollideClip;
 	}
 
 	// Move the ball by its velocity
@@ -440,6 +446,7 @@ public class BallList {
 		Vector3 newvelocity2 = ball2.velocity + deltaP * ball1.mass * normal;
 		ball1.velocity = newvelocity1;
 		ball2.velocity = newvelocity2;
+		ball1.ballCollideAudio.Play ();
 	}
 
 }
