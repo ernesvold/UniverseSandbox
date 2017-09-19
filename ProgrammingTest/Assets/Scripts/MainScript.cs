@@ -11,7 +11,7 @@ public class MainScript : MonoBehaviour {
 	private BallList ballList;
 
 	void Start(){
-		int initNumBalls = 8;
+		int initNumBalls = 6;
 		float initBoxSize = 10f;
 		RestartSimulation (initNumBalls, initBoxSize);
 	}
@@ -274,6 +274,7 @@ public class BallList {
 
 	public GameObject gameObj = new GameObject(); // an empty game object in Unity
 	public List<Ball> balls = new List<Ball>(); // the list of ball objects
+	public Grid3D grid;
 	public float ballDiameter;
 	public float boxSize; // box size
 
@@ -284,6 +285,18 @@ public class BallList {
 		boxSize = inputBoxSize; // get box size
 		AddBalls (numBalls);
 		//AddBall_Test();
+
+		// Calculate cell size such that the box will contain an integer number of cells, each
+		//   at least twice the diameter of a ball, if possible
+		float cellSize;
+		if (boxSize / (ballDiameter * 2) < 1) {
+			cellSize = boxSize;
+			
+		} else {
+			cellSize = boxSize/Mathf.Floor (boxSize / (ballDiameter * 2)); 
+		}
+		grid = new Grid3D (cellSize);
+
 	}
 
 	// Create and add Balls to the list
@@ -305,6 +318,7 @@ public class BallList {
 
 		// Create and add each Ball
 		for (int i = 0; i < numBalls; i++){
+			//velocities [i] = Vector3.zero;
 			balls.Add (new Ball (gameObj.transform, positions [i], velocities[i], ballDiameter, masses[i])); // add a new ball
 		}
 	}
@@ -455,6 +469,20 @@ public class BallList {
 
 }
 
+
+public class Grid3D{
+
+	public float cellSize; 
+	public Dictionary<int, List<Ball>> dict;
+
+	public Grid3D(float size){
+		cellSize = size;
+		dict = new Dictionary<int, List<Ball>>();
+	}
+
+
+
+}
 
 
 
