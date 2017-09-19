@@ -291,9 +291,13 @@ public class BallList {
 		Vector3[] velocities = new Vector3[numballs]; // ball velocities
 		float[] masses = Enumerable.Repeat(1f,numballs).ToArray(); // ball masses
 
-		float diameter = 1.0f; // ball radius
+		float maxdiameter = 3.0f; // maximum ball size
+		float diameter = maxdiameter; // ball size
 		float maxpos = boxsize - diameter/2; //maximum position of balls (make sure balls don't initially overlap wall)
 		MakeRandomPositions(numballs, maxpos, ref positions, out diameter); // generate random positions (and set diameter)
+		if (diameter > maxdiameter) {
+			diameter = maxdiameter; // cap ball size
+		}
 
 		float velocitycap = 50f; // limit on velocity for viewing purposes
 		float collisionmaxvel = diameter/(Mathf.Sqrt(3)*Time.fixedDeltaTime); // limit on velocity for collision calculations
@@ -450,6 +454,7 @@ public class BallList {
 	}
 
 }
+
 
 
 
