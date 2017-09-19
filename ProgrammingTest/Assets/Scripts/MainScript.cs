@@ -11,7 +11,7 @@ public class MainScript : MonoBehaviour {
 	private BallList ballList;
 
 	void Start(){
-		int initNumBalls = 6;
+		int initNumBalls = 8;
 		float initBoxSize = 10f;
 		RestartSimulation (initNumBalls, initBoxSize);
 	}
@@ -293,9 +293,7 @@ public class BallList {
 		float[] masses = Enumerable.Repeat(1f,numBalls).ToArray(); // ball masses
 
 		float maxDiameter = 3.0f; // maximum ball size
-		ballDiameter = maxDiameter; // ball size
-		float maxPos = boxSize - ballDiameter/2; //maximum position of balls (make sure balls don't initially overlap wall)
-		MakeRandomPositions(numBalls, maxPos, ref positions, out ballDiameter); // generate random positions (and set diameter)
+		MakeRandomPositions(numBalls, ref positions); // generate random positions (and set diameter)
 		if (ballDiameter > maxDiameter) {
 			ballDiameter = maxDiameter; // cap ball size
 		}
@@ -313,25 +311,24 @@ public class BallList {
 
 	// Create test ball scenario
 	public void AddBall_Test(){
-		balls.Add (new Ball (gameObj.transform, new Vector3 (5, 0, 0), new Vector3 (-20, 0, 0), 1.0f, 1.0f));
-		balls.Add (new Ball (gameObj.transform, new Vector3 (-5, 0, 0), new Vector3 (20, 0, 0), 1.0f, 1.0f));
+		ballDiameter = 2.0f;
+		balls.Add (new Ball (gameObj.transform, new Vector3 (5, 0, 0), new Vector3 (-20, 0, 0), ballDiameter, 1.0f));
+		balls.Add (new Ball (gameObj.transform, new Vector3 (-5, 0, 0), new Vector3 (20, 0, 0), ballDiameter, 1.0f));
 		balls [0].rd.material.color = Color.black;
-		balls [0].gameObj.transform.localScale = Vector3.one * 2.0f;
-		balls [1].gameObj.transform.localScale = Vector3.one * 2.0f;
 	}
 
 	// Generate a list of random-looking positions
-	public void MakeRandomPositions(int numPositions, float maxPos, ref Vector3[] positions, out float diameter){
+	public void MakeRandomPositions(int numPositions, ref Vector3[] positions){
 		int numPts1d = (int) Mathf.Ceil(Mathf.Pow(numPositions,(float)1.0/3)); // number of points in one dimension in the grid
 		numPts1d = numPts1d * 3; // add extra white space 
 		int numpts2d = numPts1d * numPts1d; // number of points in one 2d slice of the grid
 		int numpts3d = numpts2d * numPts1d; // total number of points in the 3d grid
 
-		int[] indices = Enumerable.Range (0, numpts3d).ToArray (); // array of indicies representing grid coordinates
+		int[] indices = Enumerable.Range (0, numpts3d).ToArray (); // array of indices representing grid coordinates
 
 		float shift = ((float)numPts1d-1)/2; // center grid at origin
-		float scale = 2*maxPos/numPts1d; // scale grid to size of box
-		diameter = scale; // scale up diameters to fill grid pixel
+		float scale = boxSize*2/(numPts1d); // scale grid to size of box
+		ballDiameter = scale; // scale up diameters to fill grid pixel
 
 		// Shuffle array of indices (at least the first numpositions)
 		PartiallyShuffleArray (numPositions, ref indices);
@@ -457,7 +454,6 @@ public class BallList {
 	}
 
 }
-
 
 
 
