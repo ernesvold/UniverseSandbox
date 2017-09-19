@@ -231,8 +231,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c42607a7c0a4b4895922f0385e49171d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numballsField: {fileID: 1411150427}
-  boxsizeField: {fileID: 1381326311}
+  numBallsField: {fileID: 1411150427}
+  boxSizeField: {fileID: 1381326311}
   errorText: {fileID: 1415232661}
 --- !u!1 &428065841
 GameObject:
@@ -261,8 +261,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6606fe20ae54b45caa2be7406eb0786d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numballs: 8
-  boxsize: 10
+  numBalls: 0
+  boxSize: 0
 --- !u!4 &428065843
 Transform:
   m_ObjectHideFlags: 0
@@ -287,7 +287,7 @@ GameObject:
   - component: {fileID: 744404813}
   - component: {fileID: 744404812}
   m_Layer: 5
-  m_Name: Title Text
+  m_Name: TitleText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -768,7 +768,7 @@ GameObject:
   - component: {fileID: 1381326312}
   - component: {fileID: 1381326311}
   m_Layer: 5
-  m_Name: BoxsizeInput
+  m_Name: BoxSizeInput
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -976,7 +976,7 @@ GameObject:
   - component: {fileID: 1411150428}
   - component: {fileID: 1411150427}
   m_Layer: 5
-  m_Name: NumballsInput
+  m_Name: NumBallsInput
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

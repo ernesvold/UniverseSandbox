@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 public class UserInputHandler : MonoBehaviour {
 
-	public InputField numballsField;
-	public InputField boxsizeField;
+	public InputField numBallsField;
+	public InputField boxSizeField;
 	public Text errorText;
 
 	private Button restartButton;
@@ -18,45 +18,45 @@ public class UserInputHandler : MonoBehaviour {
 		restartButton.onClick.AddListener(Restart);
 
 		// Set character validation for text input fields
-		numballsField.characterValidation = InputField.CharacterValidation.Integer;
-		boxsizeField.characterValidation = InputField.CharacterValidation.Decimal;
+		numBallsField.characterValidation = InputField.CharacterValidation.Integer;
+		boxSizeField.characterValidation = InputField.CharacterValidation.Decimal;
 	}
 
 	void Restart(){
 		
 		// Input checking
-		if (numballsField.text == "") {
+		if (numBallsField.text == "") {
 			errorText.text = "Please enter a value for number of balls.";
 			errorText.color = Color.red;
 			return;
 		}
-		if (boxsizeField.text == "") {
+		if (boxSizeField.text == "") {
 			errorText.text = "Please enter a value for size of box.";
 			errorText.color = Color.red;
 			return;
 		}
 
 		// Read user input from text fields
-		int numballs = int.Parse(numballsField.text);
-		float boxsize = float.Parse(boxsizeField.text);
+		int numBalls = int.Parse(numBallsField.text);
+		float boxSize = float.Parse(boxSizeField.text);
 
 		// More input checking
-		if (numballs <= 0) {
+		if (numBalls <= 0) {
 			errorText.text = "Come on, you've gotta have at least one ball.";
 			errorText.color = Color.red;
 			return;
 		}
-		if (boxsize <= 0) {
+		if (boxSize <= 0) {
 			errorText.text = "Only positive values for box size, please.";
 			errorText.color = Color.red;
 			return;
 		}
-		if (numballs > 200) {
+		if (numBalls > 200) {
 			errorText.text = "Please enter a number of balls less than 200.";
 			errorText.color = Color.blue;
 			return;
 		}
-		if (boxsize > 100) {
+		if (boxSize > 100) {
 			errorText.text = "Please enter a box size smaller than 100.";
 			errorText.color = Color.blue;
 			return;
@@ -66,7 +66,7 @@ public class UserInputHandler : MonoBehaviour {
 		// Restart simulation and reset camera view
 		errorText.text = "Enter your custom parameters and hit Restart!";
 		errorText.color = Color.black;
-		GameObject.Find ("MainGameObject").GetComponent<MainScript> ().RestartSimulation (numballs, boxsize);
+		GameObject.Find ("MainGameObject").GetComponent<MainScript> ().RestartSimulation (numBalls, boxSize);
 		GameObject.Find ("Main Camera").GetComponent<CameraController> ().ResetCamera ();
 	}
 		
