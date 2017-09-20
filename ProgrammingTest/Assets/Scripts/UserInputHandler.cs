@@ -51,8 +51,8 @@ public class UserInputHandler : MonoBehaviour {
 			errorText.color = Color.red;
 			return;
 		}
-		if (numBalls > 200) {
-			errorText.text = "Please enter a number of balls less than 200.";
+		if (numBalls > 2000) {
+			errorText.text = "Please enter a number of balls less than 2000.";
 			errorText.color = Color.blue;
 			return;
 		}

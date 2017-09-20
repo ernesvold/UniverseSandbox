@@ -418,7 +418,7 @@ public class BallList {
 	// Integrate the motion of the balls, including collision detection and resolution
 	public void IntegrateMotion(float timeStep){
 
-		CheckCollisions_Direct (timeStep);
+		CheckCollisions_Grid (timeStep);
 
 		foreach (Ball ball in balls){
 
@@ -431,7 +431,6 @@ public class BallList {
 		grid.Empty ();
 		List<Vector3> positions = balls.Select (o => o.gameObj.transform.position).ToList (); // make a list of the ball positions
 		grid.Fill (positions, balls);
-		Debug.Break ();
 
 	}
 
@@ -458,13 +457,33 @@ public class BallList {
 
 	public void CheckCollisions_Grid (float timeStep){
 
+		List<string> keys = grid.GetKeys();
+
 		// For each cell in the grid
+		foreach (string key in keys) {
+			
+			// Get a list of balls in that cell
+			List<Ball> ballsInCell = grid.GetObjectsInCell(key);
 
-		// Get a list of balls in that cell
+			// If there is more than one ball,
+			if (ballsInCell.Count > 1) {
+				
+				// For each ball in the cell
+				for (int i = 0; i < ballsInCell.Count - 1; i++) {
+					
+					// Check whether it's colliding with another ball
+					for (int j = i + 1; j < ballsInCell.Count; j++) {
 
-		// If there is more than one ball,
-		// For each ball in the cell
-		// Check whether it's colliding with another ball
+						if (ballsInCell[i].IsCollidingWith(ballsInCell[j])){
+
+							CollisionResolve (ballsInCell [i], ballsInCell [j]); // Trigger collision resolution
+
+						}
+
+					}
+				}
+			}
+		}
 
 	}
 
