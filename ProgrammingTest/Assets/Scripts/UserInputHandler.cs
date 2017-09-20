@@ -8,14 +8,19 @@ public class UserInputHandler : MonoBehaviour {
 	public InputField numBallsField;
 	public InputField boxSizeField;
 	public Text errorText;
+	public Button restartButton;
+	public Button muteButton;
 
-	private Button restartButton;
+	private bool isMuted = false; // flag indicating whether audio is muted
 
 	// Use this for initialization
 	void Start () {
-		// Get button component and attach Restart method to onClick
-		restartButton = GetComponent<Button> ();
+		
+		// Attach Restart method to onClick for restart button
 		restartButton.onClick.AddListener(Restart);
+
+		// Attach Mute method to onClick for mute nutton
+		muteButton.onClick.AddListener(Mute);
 
 		// Set character validation for text input fields
 		numBallsField.characterValidation = InputField.CharacterValidation.Integer;
@@ -70,5 +75,22 @@ public class UserInputHandler : MonoBehaviour {
 		GameObject.Find ("Main Camera").GetComponent<CameraController> ().ResetCamera ();
 	}
 		
+	void Mute(){
+
+		Text buttonText;
+
+		if (isMuted) {
+			AudioListener.volume = 1;
+			buttonText = muteButton.GetComponentInChildren<Text>();
+			buttonText.text = "Mute";
+		} else {
+			AudioListener.volume = 0;
+			buttonText = muteButton.GetComponentInChildren<Text>();
+			buttonText.text = "Unmute";
+		}
+
+		// Update muted flag
+		isMuted = !isMuted;
+	}
 
 }

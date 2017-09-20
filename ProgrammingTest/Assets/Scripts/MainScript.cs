@@ -506,7 +506,11 @@ public class BallList {
 		ball2.velocity = newVelocity2;
 
 		// Play collision audio
-		ball1.ballCollideAudio.Play ();
+		if (ball1.ballCollideAudio != null) {
+			ball1.ballCollideAudio.Play ();
+		} else if (ball2.ballCollideAudio != null) {
+			ball2.ballCollideAudio.Play ();
+		}
 	}
 
 }
