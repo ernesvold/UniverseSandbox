@@ -456,6 +456,18 @@ public class BallList {
 
 	}
 
+	public void CheckCollisions_Grid (float timeStep){
+
+		// For each cell in the grid
+
+		// Get a list of balls in that cell
+
+		// If there is more than one ball,
+		// For each ball in the cell
+		// Check whether it's colliding with another ball
+
+	}
+
 	// Resolve collision between two balls
 	public void CollisionResolve(Ball ball1, Ball ball2){
 
@@ -540,13 +552,21 @@ public class Grid3D<T>{
 		for (int i = 0; i<numObj; i++){
 			Add(posList[i], objList[i]);
 		}
+	}
 
-		Debug.Log ("Grid filled. Number of cells = " + dict.Count);
+	public List<string> GetKeys(){
+		return dict.Keys.ToList();
+	}
+
+	public List<T> GetObjectsInCell(string key){
+		if (dict.ContainsKey (key)) {
+			return dict [key];
+		}
+		return new List<T>();
 	}
 
 	public void Empty(){
 		dict.Clear ();
-		Debug.Log ("Emptying grid. Number of cells = "+dict.Count);
 	}
 
 }
