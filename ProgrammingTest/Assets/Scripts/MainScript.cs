@@ -492,13 +492,29 @@ public class Grid3D<T>{
 
 		// Convert position to key
 		string key = MakeKey(position);
-		Debug.Log (key);
+		Debug.Log ("Next key: "+key);
 
-		// if cell exists, pick that cell's list
-
-		// if cell doesn't exist, add it to dictionary
-
-		// if that cell doesn't already contain the object, add it
+		List<T> cell;
+		// If cell exists, pick that cell's list
+		if (dict.ContainsKey (key)) {
+			Debug.Log ("Cell already exists.");
+			cell = dict [key];
+		} 
+		// If cell doesn't exist, add it to dictionary
+		else {
+			Debug.Log ("Cell does not yet exist. Adding.");
+			cell = new List<T>();
+			dict.Add(key, cell);
+		}
+			
+		// If that cell doesn't already contain the object, add it
+		if (!cell.Contains(obj)){
+			Debug.Log("Cell does not yet contain object. Adding.");
+			cell.Add(obj);
+		} 
+		else {
+			Debug.Log("Cell already contains object.");
+		}
 	}
 
 	// Convert a position to a string key
