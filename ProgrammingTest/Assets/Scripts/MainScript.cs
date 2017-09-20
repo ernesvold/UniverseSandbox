@@ -322,7 +322,6 @@ public class BallList {
 
 		// Create and add each Ball
 		for (int i = 0; i < numBalls; i++){
-			velocities [i] = Vector3.zero;
 			balls.Add (new Ball (gameObj.transform, positions [i], velocities[i], ballDiameter, masses[i])); // add a new ball
 		}
 
@@ -428,6 +427,12 @@ public class BallList {
 			ball.MoveBall (timeStep);
 		}
 
+		// Update grid
+		grid.Empty ();
+		List<Vector3> positions = balls.Select (o => o.gameObj.transform.position).ToList (); // make a list of the ball positions
+		grid.Fill (positions, balls);
+		Debug.Break ();
+
 	}
 
 	// A laughably inefficient collision detection algorithm
@@ -492,29 +497,22 @@ public class Grid3D<T>{
 
 		// Convert position to key
 		string key = MakeKey(position);
-		Debug.Log ("Next key: "+key);
 
 		List<T> cell;
 		// If cell exists, pick that cell's list
 		if (dict.ContainsKey (key)) {
-			Debug.Log ("Cell already exists.");
 			cell = dict [key];
 		} 
 		// If cell doesn't exist, add it to dictionary
 		else {
-			Debug.Log ("Cell does not yet exist. Adding.");
 			cell = new List<T>();
 			dict.Add(key, cell);
 		}
 			
 		// If that cell doesn't already contain the object, add it
 		if (!cell.Contains(obj)){
-			Debug.Log("Cell does not yet contain object. Adding.");
 			cell.Add(obj);
 		} 
-		else {
-			Debug.Log("Cell already contains object.");
-		}
 	}
 
 	// Convert a position to a string key
@@ -543,6 +541,12 @@ public class Grid3D<T>{
 			Add(posList[i], objList[i]);
 		}
 
+		Debug.Log ("Grid filled. Number of cells = " + dict.Count);
+	}
+
+	public void Empty(){
+		dict.Clear ();
+		Debug.Log ("Emptying grid. Number of cells = "+dict.Count);
 	}
 
 }
