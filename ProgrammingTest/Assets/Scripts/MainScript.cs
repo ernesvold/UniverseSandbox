@@ -274,7 +274,7 @@ public class BallList {
 
 	public GameObject gameObj = new GameObject(); // an empty game object in Unity
 	public List<Ball> balls = new List<Ball>(); // the list of ball objects
-	public Grid3D grid;
+	public Grid3D<Ball> grid;
 	public float ballDiameter;
 	public float boxSize; // box size
 
@@ -286,17 +286,19 @@ public class BallList {
 		AddBalls (numBalls);
 		//AddBall_Test();
 
+		// Make spatial grid
 		// Calculate cell size such that the box will contain an integer number of cells, each
 		//   at least twice the diameter of a ball, if possible
 		float cellSize;
 		if (boxSize / (ballDiameter * 2) < 1) {
 			cellSize = boxSize;
-			
+
 		} else {
 			cellSize = boxSize/Mathf.Floor (boxSize / (ballDiameter * 2)); 
 		}
-		grid = new Grid3D (cellSize);
-
+		List<Vector3> positions = balls.Select (o => o.gameObj.transform.position).ToList (); // make a list of the ball positions
+		grid = new Grid3D<Ball> (cellSize); // create the grid
+		grid.Fill (positions, balls); // populate the grid
 	}
 
 	// Create and add Balls to the list
@@ -305,12 +307,14 @@ public class BallList {
 		Vector3[] velocities = new Vector3[numBalls]; // ball velocities
 		float[] masses = Enumerable.Repeat(1f,numBalls).ToArray(); // ball masses
 
+		// Make positions
 		float maxDiameter = 3.0f; // maximum ball size
 		MakeRandomPositions(numBalls, ref positions); // generate random positions (and set diameter)
 		if (ballDiameter > maxDiameter) {
 			ballDiameter = maxDiameter; // cap ball size
 		}
 
+		// Make velocities
 		float velocityCap = 50f; // limit on velocity for viewing purposes
 		float collisionMaxVel = ballDiameter/(Mathf.Sqrt(3)*Time.fixedDeltaTime); // limit on velocity for collision calculations
 		float maxVel = Mathf.Min(velocityCap, collisionMaxVel); // use the minimum of the two
@@ -318,9 +322,11 @@ public class BallList {
 
 		// Create and add each Ball
 		for (int i = 0; i < numBalls; i++){
-			//velocities [i] = Vector3.zero;
+			velocities [i] = Vector3.zero;
 			balls.Add (new Ball (gameObj.transform, positions [i], velocities[i], ballDiameter, masses[i])); // add a new ball
 		}
+
+
 	}
 
 	// Create test ball scenario
@@ -470,17 +476,50 @@ public class BallList {
 }
 
 
-public class Grid3D{
+public class Grid3D<T>{
 
 	public float cellSize; 
-	public Dictionary<int, List<Ball>> dict;
+	public Dictionary<int, List<T>> dict;
 
 	public Grid3D(float size){
 		cellSize = size;
-		dict = new Dictionary<int, List<Ball>>();
+		dict = new Dictionary<int, List<T>>();
 	}
 
+	public void Add(Vector3 position, T obj){
 
+		// Convert position to key
+		string key = MakeKey(position);
+		Debug.Log (key);
+
+		// if cell exists, pick that cell's list
+
+		// if cell doesn't exist, add it to dictionary
+
+		// if that cell doesn't already contain the object, add it
+	}
+
+	private string MakeKey(Vector3 position){
+		int x = Mathf.FloorToInt(position.x / cellSize);
+		int y = Mathf.FloorToInt(position.y / cellSize);
+		int z = Mathf.FloorToInt(position.z / cellSize);
+		return "(" + x.ToString () + ", " + y.ToString () + ", " + z.ToString () + ")";
+	}
+
+	public void Fill(List<Vector3> posList, List<T> objList){
+		int numObj = 0;
+		if (posList.Count != objList.Count) {
+			Debug.Log ("WARNING: Grid3D.Add: number of positions does not equal number of objects!");
+			numObj = Mathf.Min (posList.Count, objList.Count);
+		} else {
+			numObj = objList.Count;
+		}
+
+		for (int i = 0; i<numObj; i++){
+			Add(posList[i], objList[i]);
+		}
+
+	}
 
 }
 
