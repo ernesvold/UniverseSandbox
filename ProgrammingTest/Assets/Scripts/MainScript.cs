@@ -475,17 +475,19 @@ public class BallList {
 
 }
 
-
+// A 3D spatial hash for better collision detection
 public class Grid3D<T>{
 
-	public float cellSize; 
-	public Dictionary<int, List<T>> dict;
+	public float cellSize; // size of each cell in the grid
+	public Dictionary<string, List<T>> dict; // the spatial hash
 
+	// Grid3D constructor
 	public Grid3D(float size){
 		cellSize = size;
-		dict = new Dictionary<int, List<T>>();
+		dict = new Dictionary<string, List<T>>();
 	}
 
+	// Add an object to the dict
 	public void Add(Vector3 position, T obj){
 
 		// Convert position to key
@@ -499,6 +501,7 @@ public class Grid3D<T>{
 		// if that cell doesn't already contain the object, add it
 	}
 
+	// Convert a position to a string key
 	private string MakeKey(Vector3 position){
 		int x = Mathf.FloorToInt(position.x / cellSize);
 		int y = Mathf.FloorToInt(position.y / cellSize);
@@ -506,8 +509,12 @@ public class Grid3D<T>{
 		return "(" + x.ToString () + ", " + y.ToString () + ", " + z.ToString () + ")";
 	}
 
+	// Add a list of objects to the dict
 	public void Fill(List<Vector3> posList, List<T> objList){
+		
 		int numObj = 0;
+
+		// Error checking - the posList and the objList must be the same length
 		if (posList.Count != objList.Count) {
 			Debug.Log ("WARNING: Grid3D.Add: number of positions does not equal number of objects!");
 			numObj = Mathf.Min (posList.Count, objList.Count);
@@ -515,6 +522,7 @@ public class Grid3D<T>{
 			numObj = objList.Count;
 		}
 
+		// Add each object to the dict
 		for (int i = 0; i<numObj; i++){
 			Add(posList[i], objList[i]);
 		}
