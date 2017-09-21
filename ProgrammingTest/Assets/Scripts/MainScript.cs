@@ -298,7 +298,7 @@ public class BallList {
 		}
 		List<Vector3> positions = balls.Select (o => o.gameObj.transform.position).ToList (); // make a list of the ball positions
 		grid = new Grid3D<Ball> (cellSize); // create the grid
-		grid.Fill (positions, balls); // populate the grid
+		grid.Fill (positions, balls, ballDiameter/2); // populate the grid
 	}
 
 	// Create and add Balls to the list
@@ -330,9 +330,9 @@ public class BallList {
 
 	// Create test ball scenario
 	public void AddBall_Test(){
-		ballDiameter = 2.0f;
-		balls.Add (new Ball (gameObj.transform, new Vector3 (5, 0, 0), new Vector3 (-20, 0, 0), ballDiameter, 1.0f));
-		balls.Add (new Ball (gameObj.transform, new Vector3 (-5, 0, 0), new Vector3 (20, 0, 0), ballDiameter, 1.0f));
+		ballDiameter = 3.0f;
+		balls.Add (new Ball (gameObj.transform, new Vector3 (5, 0, 0), new Vector3 (-5, 0, 0), ballDiameter, 1.0f));
+		balls.Add (new Ball (gameObj.transform, new Vector3 (-5, 2, 2), new Vector3 (0, 0, 0), ballDiameter, 1.0f));
 		balls [0].rd.material.color = Color.black;
 	}
 
@@ -430,7 +430,7 @@ public class BallList {
 		// Update grid
 		grid.Empty ();
 		List<Vector3> positions = balls.Select (o => o.gameObj.transform.position).ToList (); // make a list of the ball positions
-		grid.Fill (positions, balls);
+		grid.Fill (positions, balls, ballDiameter/2);
 
 	}
 
@@ -442,7 +442,7 @@ public class BallList {
 
 			// Check whether it's colliding with another ball
 			for (int j = i + 1; j < balls.Count; j++) {
-
+				
 				if (balls[i].IsCollidingWith(balls[j])){
 
 					CollisionResolve (balls [i], balls [j]); // Trigger collision resolution
@@ -527,11 +527,25 @@ public class Grid3D<T>{
 		dict = new Dictionary<string, List<T>>();
 	}
 
-	// Add an object to the dict
-	public void Add(Vector3 position, T obj){
+	// Add (each vertex of) an object to the dict 
+	public void AddObject(Vector3 position, T obj, float size){
+
+		AddVertex (new Vector3(position.x+size, position.y+size, position.z+size), obj);
+		AddVertex (new Vector3(position.x+size, position.y+size, position.z-size), obj);
+		AddVertex (new Vector3(position.x+size, position.y-size, position.z-size), obj);
+		AddVertex (new Vector3(position.x+size, position.y-size, position.z+size), obj);
+		AddVertex (new Vector3(position.x-size, position.y+size, position.z+size), obj);
+		AddVertex (new Vector3(position.x-size, position.y+size, position.z-size), obj);
+		AddVertex (new Vector3(position.x-size, position.y-size, position.z-size), obj);
+		AddVertex (new Vector3(position.x-size, position.y-size, position.z+size), obj);
+
+	}
+
+	// Add a vertex to the dict
+	private void AddVertex(Vector3 vertex, T obj){
 
 		// Convert position to key
-		string key = MakeKey(position);
+		string key = MakeKey(vertex);
 
 		List<T> cell;
 		// If cell exists, pick that cell's list
@@ -559,7 +573,7 @@ public class Grid3D<T>{
 	}
 
 	// Add a list of objects to the dict
-	public void Fill(List<Vector3> posList, List<T> objList){
+	public void Fill(List<Vector3> posList, List<T> objList, float size){
 		
 		int numObj = 0;
 
@@ -573,7 +587,7 @@ public class Grid3D<T>{
 
 		// Add each object to the dict
 		for (int i = 0; i<numObj; i++){
-			Add(posList[i], objList[i]);
+			AddObject(posList[i], objList[i], size);
 		}
 	}
 
