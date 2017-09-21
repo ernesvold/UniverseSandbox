@@ -19,7 +19,7 @@ public class CameraController : MonoBehaviour {
 		// Move camera back far enough to see entire box
 		float boxSize = GameObject.Find ("MainGameObject").GetComponent<MainScript> ().boxSize;
 		transform.position = new Vector3 (0, 0, -4 * boxSize);
-		transform.eulerAngles = new Vector3 (0, 0, 0);
+		transform.eulerAngles = new Vector3 (0, 10, 0);
 
 		// Set minimum and maximum zoom relative to box size
 		minZoom = boxSize/10f; 

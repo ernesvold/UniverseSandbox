@@ -98,9 +98,10 @@ public class Wall{
 		gameObj.transform.position = position; // set the position
 		gameObj.transform.localScale = size; // set the size
 
-		rd = gameObj.GetComponent<Renderer> (); // get renderer
-		rd.material.EnableKeyword("_ALPHATEST_ON"); // turn on transparency
-		rd.material.color = new Color(0f ,0f, 0f, 0f); // make wall transparent
+		rd = gameObj.GetComponent<Renderer> (); // get renderer 
+		rd.material = new Material(Shader.Find("Transparent/VertexLit")); // only this shader seems to allow runtime transparency changes	
+		rd.material.color = new Color (1f, 1f, 1f, 0.15f); // make walls mostly transparent
+
 	}
 
 }
@@ -109,11 +110,16 @@ public class Edge{
 	public GameObject gameObj = GameObject.CreatePrimitive(PrimitiveType.Cube); // create cube
 
 	public Edge(Transform parent, Vector3 position, Vector3 rotation, Vector3 size){
+		Renderer rd;
+
 		gameObj.name = "Edge"; // name the cube
 		gameObj.transform.parent = parent; // set as child
 		gameObj.transform.position = position; // set the position
 		gameObj.transform.Rotate(rotation); // set the rotation
 		gameObj.transform.localScale = size; // set the size
+
+		rd = gameObj.GetComponent<Renderer> ();
+		rd.material.color = Color.grey;
 	}
 
 
@@ -315,7 +321,7 @@ public class BallList {
 		}
 
 		// Make velocities
-		float velocityCap = 50f; // limit on velocity for viewing purposes
+		float velocityCap = 20f; // limit on velocity for viewing purposes
 		float collisionMaxVel = ballDiameter/(Mathf.Sqrt(3)*Time.fixedDeltaTime); // limit on velocity for collision calculations
 		float maxVel = Mathf.Min(velocityCap, collisionMaxVel); // use the minimum of the two
 		MakeRandomVelocities (numBalls, maxVel, ref masses, ref velocities); // generate random velocities
@@ -323,6 +329,8 @@ public class BallList {
 		// Create and add each Ball
 		for (int i = 0; i < numBalls; i++){
 			balls.Add (new Ball (gameObj.transform, positions [i], velocities[i], ballDiameter, masses[i])); // add a new ball
+			balls [i].rd.material.SetFloat ("_Glossiness",0.5f);
+			balls [i].rd.material.SetFloat ("_Metallic", 0.8f);
 		}
 
 
@@ -330,9 +338,9 @@ public class BallList {
 
 	// Create test ball scenario
 	public void AddBall_Test(){
-		ballDiameter = 3.0f;
-		balls.Add (new Ball (gameObj.transform, new Vector3 (5, 0, 0), new Vector3 (-5, 0, 0), ballDiameter, 1.0f));
-		balls.Add (new Ball (gameObj.transform, new Vector3 (-5, 2, 2), new Vector3 (0, 0, 0), ballDiameter, 1.0f));
+		ballDiameter = 5.0f;
+		balls.Add (new Ball (gameObj.transform, new Vector3 (5, 0, 0), new Vector3 (0, 0, 0), ballDiameter, 1.0f));
+		balls.Add (new Ball (gameObj.transform, new Vector3 (-5, 0, 0), new Vector3 (0, 0, 0), ballDiameter, 1.0f));
 		balls [0].rd.material.color = Color.black;
 	}
 
