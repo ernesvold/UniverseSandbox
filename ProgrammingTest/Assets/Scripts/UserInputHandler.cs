@@ -10,7 +10,10 @@ public class UserInputHandler : MonoBehaviour {
 	public Text errorText;
 	public Button restartButton;
 	public Button muteButton;
+	public Button quitButton;
 
+	private int maxNumBalls = 1000;
+	private float maxBoxSize = 100;
 	private bool isMuted = false; // flag indicating whether audio is muted
 
 	// Use this for initialization
@@ -19,8 +22,11 @@ public class UserInputHandler : MonoBehaviour {
 		// Attach Restart method to onClick for restart button
 		restartButton.onClick.AddListener(Restart);
 
-		// Attach Mute method to onClick for mute nutton
+		// Attach Mute method to onClick for mute button
 		muteButton.onClick.AddListener(Mute);
+
+		// Attach Quit method to onClick for quit button
+		quitButton.onClick.AddListener(Quit);
 
 		// Set character validation for text input fields
 		numBallsField.characterValidation = InputField.CharacterValidation.Integer;
@@ -56,13 +62,13 @@ public class UserInputHandler : MonoBehaviour {
 			errorText.color = Color.red;
 			return;
 		}
-		if (numBalls > 2000) {
-			errorText.text = "Please enter a number of balls less than 2000.";
+		if (numBalls > maxNumBalls) {
+			errorText.text = "Please enter a number of balls less than "+maxNumBalls.ToString()+".";
 			errorText.color = Color.blue;
 			return;
 		}
-		if (boxSize > 100) {
-			errorText.text = "Please enter a box size smaller than 100.";
+		if (boxSize > maxBoxSize) {
+			errorText.text = "Please enter a box size smaller than "+maxBoxSize.ToString()+".";
 			errorText.color = Color.blue;
 			return;
 		}
@@ -91,6 +97,12 @@ public class UserInputHandler : MonoBehaviour {
 
 		// Update muted flag
 		isMuted = !isMuted;
+	}
+
+	void Quit(){
+
+		Application.Quit ();
+
 	}
 
 }
