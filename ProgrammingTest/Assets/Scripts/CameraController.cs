@@ -21,9 +21,10 @@ public class CameraController : MonoBehaviour {
 		transform.position = new Vector3 (0, 0, -4 * boxSize);
 		transform.eulerAngles = new Vector3 (0, 10, 0);
 
-		// Set minimum and maximum zoom relative to box size
+		// Set minimum and maximum zoom and zoom speed relative to box size
 		minZoom = boxSize/10f; 
 		maxZoom = 10f * boxSize;
+		zoomSpeed = boxSize / 2;
 	}
 
 	void Update () {

@@ -113,8 +113,6 @@ public class Wall{
 		Renderer rd;
 		rd = gameObj.GetComponent<Renderer> (); // get renderer 
 		rd.material = Resources.Load("FrostedGlass", typeof(Material)) as Material;
-		//rd.material = new Material(Shader.Find("Transparent/VertexLit")); // only this shader seems to allow runtime transparency changes	
-		//rd.material.color = new Color (1f, 1f, 1f, 0.15f); // make walls mostly transparent
 
 	}
 
@@ -252,13 +250,11 @@ public class Ball {
 
 		// If Ball 2 won't move the distance between the balls in the next timestep, no collision
 		if (displacement < edgeDistance) {
-			//Debug.Log ("Too far.");
 			return false;
 		}
 
 		// If Ball 2 is not approaching Ball 1, no collision
 		if (Vector3.Dot (relativePos, relativeVel) > 0) { 
-			//Debug.Log ("Not approaching.");
 			return false;
 		}
 
@@ -269,7 +265,6 @@ public class Ball {
 		float closDistSquared = centerDistance * centerDistance - closAppDisp * closAppDisp; // squared distance between balls at closest approach
 		float sumRadiiSquared = (ball1radius + ball2radius) * (ball1radius + ball2radius); // sum of ball radii, squared
 		if (closDistSquared > sumRadiiSquared) {
-			//Debug.Log ("Flyby");
 			return false;
 		}
 
@@ -277,12 +272,10 @@ public class Ball {
 		float offsetSquared = sumRadiiSquared - closDistSquared; // difference between displacement at closest approach and displacement at contact
 		// Check for negative number before you try to take a square root
 		if (offsetSquared < 0) { 
-			//Debug.Log ("No triangle");
 			return false;
 		}
 		float contactDisp = closAppDisp - Mathf.Sqrt(offsetSquared); // displacement of Ball 2 at moment of contact
 		if (contactDisp > displacement) {
-			//Debug.Log ("Wrong direction");
 			return false;
 		}
 
@@ -315,14 +308,15 @@ public class BallList {
 		// Calculate cell size such that the box will contain an integer number of cells, each
 		//   at least twice the diameter of a ball, if possible
 		float cellSize;
-		if (boxSize / (ballDiameter * 2) < 1) {
+		int numCells = 8*Mathf.FloorToInt(boxSize / (ballDiameter * 2));
+		if (numCells == 0) {
 			cellSize = boxSize;
-
+			numCells = 8;
 		} else {
-			cellSize = boxSize/Mathf.Floor (boxSize / (ballDiameter * 2)); 
+			cellSize = boxSize/numCells; 
 		}
 		List<Vector3> positions = balls.Select (o => o.gameObj.transform.position).ToList (); // make a list of the ball positions
-		grid = new Grid3D<Ball> (cellSize); // create the grid
+		grid = new Grid3D<Ball> (cellSize, numCells); // create the grid
 		grid.Fill (positions, balls, ballDiameter/2); // populate the grid
 	}
 
@@ -482,10 +476,10 @@ public class BallList {
 
 	private void CheckCollisions_Grid (float timeStep){
 
-		List<string> keys = grid.GetKeys();
+		List<int> keys = grid.GetKeys();
 
 		// For each cell in the grid
-		foreach (string key in keys) {
+		foreach (int key in keys) {
 			
 			// Get a list of balls in that cell
 			List<Ball> ballsInCell = grid.GetObjectsInCell(key);
@@ -544,12 +538,16 @@ public class BallList {
 public class Grid3D<T>{
 
 	private float cellSize; // size of each cell in the grid
-	private Dictionary<string, List<T>> dict; // the spatial hash
+	private int numCells; // total number of possible cells
+	private Dictionary<int, List<T>> dict = new Dictionary<int, List<T>>(); // the spatial hash
+	private int p1 = 73856093; // "Large primes" for hash function
+	private int p2 = 19349663;
+	private int p3 = 83492791;
 
 	// Grid3D constructor
-	public Grid3D(float size){
+	public Grid3D(float size, int num){
 		cellSize = size;
-		dict = new Dictionary<string, List<T>>();
+		numCells = num;
 	}
 
 	// Add (each vertex of) an object to the dict 
@@ -563,14 +561,13 @@ public class Grid3D<T>{
 		AddVertex (new Vector3(position.x-size, position.y+size, position.z-size), obj);
 		AddVertex (new Vector3(position.x-size, position.y-size, position.z-size), obj);
 		AddVertex (new Vector3(position.x-size, position.y-size, position.z+size), obj);
-
 	}
 
 	// Add a vertex to the dict
 	private void AddVertex(Vector3 vertex, T obj){
 
 		// Convert position to key
-		string key = MakeKey(vertex);
+		int key = MakeKey(vertex);
 
 		List<T> cell;
 		// If cell exists, pick that cell's list
@@ -589,12 +586,12 @@ public class Grid3D<T>{
 		} 
 	}
 
-	// Convert a position to a string key
-	private string MakeKey(Vector3 position){
-		int x = Mathf.FloorToInt(position.x / cellSize);
-		int y = Mathf.FloorToInt(position.y / cellSize);
-		int z = Mathf.FloorToInt(position.z / cellSize);
-		return "(" + x.ToString () + ", " + y.ToString () + ", " + z.ToString () + ")";
+	// Convert a position to an integer key
+	private int MakeKey(Vector3 position){
+		int x = Mathf.FloorToInt(position.x / cellSize) + numCells;
+		int y = Mathf.FloorToInt(position.y / cellSize) + numCells;
+		int z = Mathf.FloorToInt(position.z / cellSize) + numCells;
+		return (x * p1 ^ y * p2 ^ z * p3) % numCells;
 	}
 
 	// Add a list of objects to the dict
@@ -616,11 +613,11 @@ public class Grid3D<T>{
 		}
 	}
 
-	public List<string> GetKeys(){
+	public List<int> GetKeys(){
 		return dict.Keys.ToList();
 	}
 
-	public List<T> GetObjectsInCell(string key){
+	public List<T> GetObjectsInCell(int key){
 		if (dict.ContainsKey (key)) {
 			return dict [key];
 		}
