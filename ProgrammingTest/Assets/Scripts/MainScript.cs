@@ -143,20 +143,26 @@ public class Edge{
 // A single ball
 public class Ball {
 
-	public GameObject gameObj = GameObject.CreatePrimitive (PrimitiveType.Sphere); // a sphere in unity
+	public Vector3 position; // the position of the ball
 	public Vector3 velocity = Vector3.one; // the 3d velocity of the ball
 	public float mass = 1f; // the mass of the ball
 	public Renderer rd;
 	public AudioSource ballCollideAudio;
 
+	private GameObject gameObj = GameObject.CreatePrimitive (PrimitiveType.Sphere); // a sphere in unity
+	private float radius; // the radius of the ball
+
 	// Ball constructor
 	public Ball(Transform parent, Vector3 initPosition, Vector3 initVelocity, float diameter, float ballMass){
 		gameObj.name = "Ball"; // name the sphere
 		gameObj.transform.parent = parent; // set as child
-		gameObj.transform.position = initPosition; // initial position
+		position = initPosition; // initial position
+		gameObj.transform.position = position; 
 		velocity = initVelocity; // initial velocity
-		gameObj.transform.localScale = Vector3.one * diameter; // set diameter
+		radius = diameter/2; // set size
+		gameObj.transform.localScale = Vector3.one * 2 * radius; 
 		mass = ballMass; // set mass
+
 		rd = gameObj.GetComponent<Renderer>();
 		rd.material = Resources.Load ("ShinyMetal", typeof(Material)) as Material;
 
@@ -168,7 +174,8 @@ public class Ball {
 
 	// Move the ball by its velocity
 	public void MoveBall(float timestep){
-		gameObj.transform.position += velocity * timestep;
+		position += velocity * timestep;
+		gameObj.transform.position = position;
 	}
 
 	// Detect and resolve collisions with walls
@@ -202,19 +209,11 @@ public class Ball {
 
 	// Determine whether this ball is currently overlapping another ball
 	public bool IsCollidingWith(Ball otherBall){
-		
-		// Get the position and velocity vectors and the radii of the two balls
-		Vector3 ball1pos = gameObj.transform.position; // Ball 1 position
-		Vector3 ball2pos = otherBall.gameObj.transform.position; // Ball 2 position
-		Vector3 ball1vel = velocity; // Ball 1 velocity
-		Vector3 ball2vel = otherBall.velocity; // Ball 2 velocity
-		float ball1radius = gameObj.transform.localScale.x/2; // Ball 1 radius 
-		float ball2radius = otherBall.gameObj.transform.localScale.x/2; // Ball 2 radius
 
-		// Calculate the position and velocity of Ball 2 relative to Ball 1
-		Vector3 relativePos = ball2pos - ball1pos; // relative position
-		Vector3 relativeVel = ball2vel - ball1vel; // relative velocity
-		float sumRadiiSquared = (ball1radius + ball2radius) * (ball1radius + ball2radius); // sum of ball radii, squared
+		// Calculate the position and velocity of other ball relative to this ball
+		Vector3 relativePos = otherBall.position - position; // relative position
+		Vector3 relativeVel = otherBall.velocity - velocity; // relative velocity
+		float sumRadiiSquared = (radius + otherBall.radius) * (radius + otherBall.radius); // sum of ball radii, squared
 
 		// If the balls are not overlapping, no collision
 		if (relativePos.sqrMagnitude > sumRadiiSquared) {
@@ -315,7 +314,7 @@ public class BallList {
 		} else {
 			cellSize = boxSize/numCells; 
 		}
-		List<Vector3> positions = balls.Select (o => o.gameObj.transform.position).ToList (); // make a list of the ball positions
+		List<Vector3> positions = balls.Select (o => o.position).ToList (); // make a list of the ball positions
 		grid = new Grid3D<Ball> (cellSize, numCells); // create the grid
 		grid.Fill (positions, balls, ballDiameter/2); // populate the grid
 	}
@@ -448,7 +447,7 @@ public class BallList {
 
 		// Update grid
 		grid.Empty ();
-		List<Vector3> positions = balls.Select (o => o.gameObj.transform.position).ToList (); // make a list of the ball positions
+		List<Vector3> positions = balls.Select (o => o.position).ToList (); // make a list of the ball positions
 		grid.Fill (positions, balls, ballDiameter/2);
 
 	}
@@ -510,7 +509,7 @@ public class BallList {
 	private void CollisionResolve(Ball ball1, Ball ball2){
 
 		// Calculate normal vector of collision point
-		Vector3 normal = ball2.gameObj.transform.position - ball1.gameObj.transform.position; 
+		Vector3 normal = ball2.position - ball1.position; 
 		normal.Normalize ();
 
 		// Calculate components of velocity vector along normal
