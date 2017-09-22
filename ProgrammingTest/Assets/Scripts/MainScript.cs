@@ -15,7 +15,7 @@ public class MainScript : MonoBehaviour {
 
 		// Default initial parameters
 		int initNumBalls = 6;
-		float initBoxSize = 10f;
+		float initBoxSize = 5f;
 
 		// Begin simulation
 		RestartSimulation (initNumBalls, initBoxSize);
@@ -292,7 +292,7 @@ public class BallList {
 
 	private List<Ball> balls = new List<Ball>(); // the list of ball objects
 	private Grid3D<Ball> grid;
-	private float ballDiameter;
+	private float ballDiameter = 1f;
 	private float boxSize; // box size
 
 	// BallList constructor
@@ -365,7 +365,6 @@ public class BallList {
 
 		float shift = ((float)numPts1d-1)/2; // center grid at origin
 		float scale = boxSize*2/(numPts1d); // scale grid to size of box
-		ballDiameter = scale; // scale up diameters to fill grid pixel
 
 		// Shuffle array of indices (at least the first numpositions)
 		PartiallyShuffleArray (numPositions, ref indices);

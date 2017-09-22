@@ -51,14 +51,18 @@ public class UserInputHandler : MonoBehaviour {
 		int numBalls = int.Parse(numBallsField.text);
 		float boxSize = float.Parse(boxSizeField.text);
 
+		float ballDiameter = 1f;
+		int numPts1 = (int)Mathf.Ceil (Mathf.Pow (numBalls, (float)1.0 / 3));
+		float minBoxSize = ballDiameter * 3 / 2;
+
 		// More input checking
 		if (numBalls <= 0) {
 			errorText.text = "Come on, you've gotta have at least one ball.";
 			errorText.color = Color.red;
 			return;
 		}
-		if (boxSize <= 0) {
-			errorText.text = "Only positive values for box size, please.";
+		if (boxSize < minBoxSize) {
+			errorText.text = "Please enter a box size of at least "+minBoxSize.ToString()+".";
 			errorText.color = Color.red;
 			return;
 		}
@@ -72,7 +76,12 @@ public class UserInputHandler : MonoBehaviour {
 			errorText.color = Color.blue;
 			return;
 		}
-
+			
+		if ((boxSize * 2) / (numPts1 * 3) < ballDiameter) {
+			errorText.text = "That's too many balls for that box size. Try a larger box or fewer balls.";
+			errorText.color = Color.red;
+			return;
+		}
 
 		// Restart simulation and reset camera view
 		errorText.text = "Enter your custom parameters and hit Restart!";
