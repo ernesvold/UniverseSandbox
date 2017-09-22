@@ -7,20 +7,29 @@ public class MainScript : MonoBehaviour {
 
 	public int numBalls;
 	public float boxSize;
+
 	private Box box;
 	private BallList ballList;
 
 	void Start(){
+
+		// Default initial parameters
 		int initNumBalls = 6;
 		float initBoxSize = 10f;
+
+		// Begin simulation
 		RestartSimulation (initNumBalls, initBoxSize);
 	}
 
 	void FixedUpdate(){
+
+		// Run integrator
 		ballList.IntegrateMotion (Time.fixedDeltaTime);
+
 	}
 
 	public void RestartSimulation(int newNumBalls, float newBoxSize){
+		
 		// Apply new user parameters
 		numBalls = newNumBalls;
 		boxSize = newBoxSize;
@@ -36,6 +45,7 @@ public class MainScript : MonoBehaviour {
 		// Create new box and balls with user parameters
 		box = new Box (transform, boxSize);
 		ballList = new BallList (box.gameObj.transform, boxSize, numBalls);
+
 	}
 
 }
@@ -43,10 +53,11 @@ public class MainScript : MonoBehaviour {
 public class Box{
 
 	public GameObject gameObj = new GameObject ();
-	public Wall[] walls = new Wall[6]; 
-	public Edge[] edges = new Edge[12];
-	public const int numWalls = 6;
-	public const int numEdges = 12;
+
+	private Wall[] walls = new Wall[6]; 
+	private Edge[] edges = new Edge[12];
+	private const int numWalls = 6;
+	private const int numEdges = 12;
 
 	public Box(Transform parent, float boxSize){
 		gameObj.name = "Box";
@@ -87,30 +98,34 @@ public class Box{
 
 }
 
+// The wall of a box
 public class Wall{
-	public GameObject gameObj = GameObject.CreatePrimitive(PrimitiveType.Cube); // create cube
+	
+	private GameObject gameObj = GameObject.CreatePrimitive(PrimitiveType.Cube); // create cube
 
 	public Wall(Transform parent, Vector3 position, Vector3 size){
-		Renderer rd;
 
 		gameObj.name = "Wall"; // name the cube
 		gameObj.transform.parent = parent; // set as child
 		gameObj.transform.position = position; // set the position
 		gameObj.transform.localScale = size; // set the size
 
+		Renderer rd;
 		rd = gameObj.GetComponent<Renderer> (); // get renderer 
-		rd.material = new Material(Shader.Find("Transparent/VertexLit")); // only this shader seems to allow runtime transparency changes	
-		rd.material.color = new Color (1f, 1f, 1f, 0.15f); // make walls mostly transparent
+		rd.material = Resources.Load("FrostedGlass", typeof(Material)) as Material;
+		//rd.material = new Material(Shader.Find("Transparent/VertexLit")); // only this shader seems to allow runtime transparency changes	
+		//rd.material.color = new Color (1f, 1f, 1f, 0.15f); // make walls mostly transparent
 
 	}
 
 }
 
+// The edge of a box
 public class Edge{
-	public GameObject gameObj = GameObject.CreatePrimitive(PrimitiveType.Cube); // create cube
+	
+	private GameObject gameObj = GameObject.CreatePrimitive(PrimitiveType.Cube); // create cube
 
 	public Edge(Transform parent, Vector3 position, Vector3 rotation, Vector3 size){
-		Renderer rd;
 
 		gameObj.name = "Edge"; // name the cube
 		gameObj.transform.parent = parent; // set as child
@@ -118,8 +133,10 @@ public class Edge{
 		gameObj.transform.Rotate(rotation); // set the rotation
 		gameObj.transform.localScale = size; // set the size
 
-		rd = gameObj.GetComponent<Renderer> ();
-		rd.material.color = Color.grey;
+		Renderer rd;
+		rd = gameObj.GetComponent<Renderer> (); // get renderer
+		rd.material = Resources.Load("DullMetal", typeof(Material)) as Material;
+		rd.material.color = Color.grey; // make edges grey
 	}
 
 
@@ -143,6 +160,7 @@ public class Ball {
 		gameObj.transform.localScale = Vector3.one * diameter; // set diameter
 		mass = ballMass; // set mass
 		rd = gameObj.GetComponent<Renderer>();
+		rd.material = Resources.Load ("ShinyMetal", typeof(Material)) as Material;
 
 		// Add audio components
 		ballCollideAudio = gameObj.AddComponent<AudioSource> ();
@@ -279,10 +297,11 @@ public class Ball {
 public class BallList {
 
 	public GameObject gameObj = new GameObject(); // an empty game object in Unity
-	public List<Ball> balls = new List<Ball>(); // the list of ball objects
-	public Grid3D<Ball> grid;
-	public float ballDiameter;
-	public float boxSize; // box size
+
+	private List<Ball> balls = new List<Ball>(); // the list of ball objects
+	private Grid3D<Ball> grid;
+	private float ballDiameter;
+	private float boxSize; // box size
 
 	// BallList constructor
 	public BallList(Transform parent, float inputBoxSize, int numBalls){
@@ -308,7 +327,7 @@ public class BallList {
 	}
 
 	// Create and add Balls to the list
-	public void AddBalls(int numBalls){
+	private void AddBalls(int numBalls){
 		Vector3[] positions = new Vector3[numBalls]; // ball positions
 		Vector3[] velocities = new Vector3[numBalls]; // ball velocities
 		float[] masses = Enumerable.Repeat(1f,numBalls).ToArray(); // ball masses
@@ -329,15 +348,13 @@ public class BallList {
 		// Create and add each Ball
 		for (int i = 0; i < numBalls; i++){
 			balls.Add (new Ball (gameObj.transform, positions [i], velocities[i], ballDiameter, masses[i])); // add a new ball
-			balls [i].rd.material.SetFloat ("_Glossiness",0.5f);
-			balls [i].rd.material.SetFloat ("_Metallic", 0.8f);
 		}
 
 
 	}
 
 	// Create test ball scenario
-	public void AddBall_Test(){
+	private void AddBall_Test(){
 		ballDiameter = 5.0f;
 		balls.Add (new Ball (gameObj.transform, new Vector3 (5, 0, 0), new Vector3 (0, 0, 0), ballDiameter, 1.0f));
 		balls.Add (new Ball (gameObj.transform, new Vector3 (-5, 0, 0), new Vector3 (0, 0, 0), ballDiameter, 1.0f));
@@ -345,7 +362,7 @@ public class BallList {
 	}
 
 	// Generate a list of random-looking positions
-	public void MakeRandomPositions(int numPositions, ref Vector3[] positions){
+	private void MakeRandomPositions(int numPositions, ref Vector3[] positions){
 		int numPts1d = (int) Mathf.Ceil(Mathf.Pow(numPositions,(float)1.0/3)); // number of points in one dimension in the grid
 		numPts1d = numPts1d * 3; // add extra white space 
 		int numpts2d = numPts1d * numPts1d; // number of points in one 2d slice of the grid
@@ -379,7 +396,7 @@ public class BallList {
 	}
 
 	// Partially shuffle an array of integers
-	public void PartiallyShuffleArray(int k, ref int[] array) {
+	private void PartiallyShuffleArray(int k, ref int[] array) {
 
 		// Input checking
 		if (k > array.Length) {
@@ -403,7 +420,7 @@ public class BallList {
 	}
 
 	// Generate a list of random velocities with a total linear momentum of zero
-	public void MakeRandomVelocities(int numVelocities, float maxVel, ref float[] masses, ref Vector3[] velocities){
+	private void MakeRandomVelocities(int numVelocities, float maxVel, ref float[] masses, ref Vector3[] velocities){
 	
 		// Initialize total momentum vector
 		Vector3 totalMomentum = Vector3.zero;
@@ -443,7 +460,7 @@ public class BallList {
 	}
 
 	// A laughably inefficient collision detection algorithm
-	public void CheckCollisions_Direct (float timeStep){
+	private void CheckCollisions_Direct (float timeStep){
 
 		// For every ball in the list
 		for (int i = 0; i < balls.Count - 1; i++) {
@@ -463,7 +480,7 @@ public class BallList {
 
 	}
 
-	public void CheckCollisions_Grid (float timeStep){
+	private void CheckCollisions_Grid (float timeStep){
 
 		List<string> keys = grid.GetKeys();
 
@@ -496,7 +513,7 @@ public class BallList {
 	}
 
 	// Resolve collision between two balls
-	public void CollisionResolve(Ball ball1, Ball ball2){
+	private void CollisionResolve(Ball ball1, Ball ball2){
 
 		// Calculate normal vector of collision point
 		Vector3 normal = ball2.gameObj.transform.position - ball1.gameObj.transform.position; 
@@ -526,8 +543,8 @@ public class BallList {
 // A 3D spatial hash for better collision detection
 public class Grid3D<T>{
 
-	public float cellSize; // size of each cell in the grid
-	public Dictionary<string, List<T>> dict; // the spatial hash
+	private float cellSize; // size of each cell in the grid
+	private Dictionary<string, List<T>> dict; // the spatial hash
 
 	// Grid3D constructor
 	public Grid3D(float size){
