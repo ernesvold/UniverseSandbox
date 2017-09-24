@@ -300,19 +300,20 @@ public class BallList {
 		gameObj.name = "BallList"; // name the empty game object
 		gameObj.transform.parent = parent; // set as child
 		boxSize = inputBoxSize; // get box size
-		AddBalls (numBalls);
-		//AddBall_Test();
+		//AddBalls (numBalls);
+		AddBall_Test();
 
 		// Make spatial grid
 		// Calculate cell size such that the box will contain an integer number of cells, each
 		//   at least twice the diameter of a ball, if possible
 		float cellSize;
-		int numCells = 8*Mathf.FloorToInt(boxSize / (ballDiameter * 2));
-		if (numCells == 0) {
-			cellSize = boxSize;
-			numCells = 8;
+		int numCellsInBoxSize = Mathf.FloorToInt (boxSize / (ballDiameter * 2)); //  number of cells that in boxsize
+		int numCells = 8*(numCellsInBoxSize*numCellsInBoxSize*numCellsInBoxSize); // total number of cells in box
+		if (numCellsInBoxSize < 1) { // if the size of a cell is larger than boxsize, 
+			cellSize = 2*boxSize; // make the box one big cell
+			numCells = 1;
 		} else {
-			cellSize = boxSize/numCells; 
+			cellSize = boxSize/numCellsInBoxSize; 
 		}
 		List<Vector3> positions = balls.Select (o => o.position).ToList (); // make a list of the ball positions
 		grid = new Grid3D<Ball> (cellSize, numCells); // create the grid
@@ -348,9 +349,9 @@ public class BallList {
 
 	// Create test ball scenario
 	private void AddBall_Test(){
-		ballDiameter = 5.0f;
-		balls.Add (new Ball (gameObj.transform, new Vector3 (5, 0, 0), new Vector3 (0, 0, 0), ballDiameter, 1.0f));
-		balls.Add (new Ball (gameObj.transform, new Vector3 (-5, 0, 0), new Vector3 (0, 0, 0), ballDiameter, 1.0f));
+		ballDiameter = 2.0f;
+		balls.Add (new Ball (gameObj.transform, new Vector3 (2, 0, 0), new Vector3 (-2, 0, 0), ballDiameter, 1.0f));
+		balls.Add (new Ball (gameObj.transform, new Vector3 (-2, 0, 0), new Vector3 (2, 0, 0), ballDiameter, 1.0f));
 		balls [0].rd.material.color = Color.black;
 	}
 
@@ -538,19 +539,22 @@ public class Grid3D<T>{
 	private float cellSize; // size of each cell in the grid
 	private int numCells; // total number of possible cells
 	private Dictionary<int, List<T>> dict = new Dictionary<int, List<T>>(); // the spatial hash
-	private int p1 = 73856093; // "Large primes" for hash function
-	private int p2 = 19349663;
-	private int p3 = 83492791;
+	//private int p1 = 73856093; // "Large primes" for hash function
+	//private int p2 = 19349663; // TODO: These large primes don't seem to result in unique keys
+	//private int p3 = 83492791; //       Check to see if they are actually prime
+	private int p1 = 13;
+	private int p2 = 17;
+	private int p3 = 19;
 
 	// Grid3D constructor
 	public Grid3D(float size, int num){
 		cellSize = size;
 		numCells = num;
+		Debug.Log ("Creating a grid with cell size " + cellSize + " and "+numCells+ " cells.");
 	}
 
 	// Add (each vertex of) an object to the dict 
 	public void AddObject(Vector3 position, T obj, float size){
-
 		AddVertex (new Vector3(position.x+size, position.y+size, position.z+size), obj);
 		AddVertex (new Vector3(position.x+size, position.y+size, position.z-size), obj);
 		AddVertex (new Vector3(position.x+size, position.y-size, position.z-size), obj);
@@ -579,17 +583,17 @@ public class Grid3D<T>{
 		}
 			
 		// If that cell doesn't already contain the object, add it
-		if (!cell.Contains(obj)){
-			cell.Add(obj);
+		if (!cell.Contains (obj)) { 
+			cell.Add (obj);
 		} 
 	}
 
 	// Convert a position to an integer key
 	private int MakeKey(Vector3 position){
-		int x = Mathf.FloorToInt(position.x / cellSize) + numCells;
-		int y = Mathf.FloorToInt(position.y / cellSize) + numCells;
-		int z = Mathf.FloorToInt(position.z / cellSize) + numCells;
-		return (x * p1 ^ y * p2 ^ z * p3) % numCells;
+		int x = Mathf.FloorToInt(position.x / cellSize);
+		int y = Mathf.FloorToInt(position.y / cellSize);
+		int z = Mathf.FloorToInt(position.z / cellSize);
+		return (x * p1 ^ y * p2 ^ z * p3) % numCells; 
 	}
 
 	// Add a list of objects to the dict
@@ -609,6 +613,7 @@ public class Grid3D<T>{
 		for (int i = 0; i<numObj; i++){
 			AddObject(posList[i], objList[i], size);
 		}
+
 	}
 
 	public List<int> GetKeys(){

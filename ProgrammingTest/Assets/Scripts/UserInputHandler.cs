@@ -78,7 +78,7 @@ public class UserInputHandler : MonoBehaviour {
 		}
 			
 		if ((boxSize * 2) / (numPts1 * 3) < ballDiameter) {
-			errorText.text = "That's too many balls for that box size. Try a larger box or fewer balls.";
+			errorText.text = "That's too many balls for this box size. Try a larger box or fewer balls.";
 			errorText.color = Color.red;
 			return;
 		}
