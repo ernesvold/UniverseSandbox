@@ -346,7 +346,9 @@ public class BallList {
 			} else {
 				radius = ballRadius;
 			} 
-			balls.Add (new Ball (gameObj.transform, positions [i], velocities[i], radius, masses[i])); // add a new ball
+			float density = 6f / Mathf.PI; // Unity default density of sphere (diameter of 1 has mass of 1) 
+			float mass = (4f * Mathf.PI * radius * radius * radius / 3f) * density;
+			balls.Add (new Ball (gameObj.transform, positions [i], velocities[i], radius, mass)); // add a new ball
 		}
 
 
@@ -355,8 +357,11 @@ public class BallList {
 	// Create test ball scenario
 	private void AddBall_Test(){
 		ballRadius = 1.0f;
-		balls.Add (new Ball (gameObj.transform, new Vector3 (2, 0, 0), new Vector3 (-2, 0, 0), ballRadius, 1.0f));
-		balls.Add (new Ball (gameObj.transform, new Vector3 (-2, 0, 0), new Vector3 (2, 0, 0), ballRadius, 1.0f));
+		float smallBallRadius = ballRadius / 3;
+		float ballMass = (4f * Mathf.PI * ballRadius * ballRadius * ballRadius / 3f) * 6f / Mathf.PI;
+		float smallBallMass = (4f * Mathf.PI * smallBallRadius * smallBallRadius * smallBallRadius / 3f) * 6f / Mathf.PI;
+		balls.Add (new Ball (gameObj.transform, new Vector3 (2, 0, 0), new Vector3 (-2, 0, 0), smallBallRadius, smallBallMass));
+		balls.Add (new Ball (gameObj.transform, new Vector3 (-2, 0, 0), new Vector3 (2, 0, 0), ballRadius, ballMass));
 		balls [0].rd.material.color = Color.black;
 	}
 
