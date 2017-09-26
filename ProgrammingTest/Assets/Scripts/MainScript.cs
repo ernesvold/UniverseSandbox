@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class MainScript : MonoBehaviour {
 
-	public int numBalls;
 	public float boxSize;
 
+	private int numBalls;
 	private Box box;
 	private BallList ballList;
 
@@ -42,9 +42,12 @@ public class MainScript : MonoBehaviour {
 			Destroy (ballList.gameObj);
 		}
 
+		// Does the user want to vary the radius?
+		bool varyRadii = GameObject.Find ("Panel").GetComponent<UserInputHandler> ().radiusToggle.isOn;
+
 		// Create new box and balls with user parameters
 		box = new Box (transform, boxSize);
-		ballList = new BallList (box.gameObj.transform, boxSize, numBalls);
+		ballList = new BallList (box.gameObj.transform, boxSize, numBalls, varyRadii);
 
 	}
 
@@ -315,11 +318,11 @@ public class BallList {
 	private float boxSize; // box size
 
 	// BallList constructor
-	public BallList(Transform parent, float inputBoxSize, int numBalls){
+	public BallList(Transform parent, float inputBoxSize, int numBalls, bool varyRadii){
 		gameObj.name = "BallList"; // name the empty game object
 		gameObj.transform.parent = parent; // set as child
 		boxSize = inputBoxSize; // get box size
-		AddBalls (numBalls);
+		AddBalls (numBalls, varyRadii);
 		//AddBall_Test();
 
 		// Make spatial grid
@@ -340,7 +343,7 @@ public class BallList {
 	}
 
 	// Create and add Balls to the list
-	private void AddBalls(int numBalls){
+	private void AddBalls(int numBalls, bool varyRadii){
 		Vector3[] positions = new Vector3[numBalls]; // ball positions
 		Vector3[] velocities = new Vector3[numBalls]; // ball velocities
 		float[] masses = Enumerable.Repeat(1f,numBalls).ToArray(); // ball masses
@@ -353,9 +356,6 @@ public class BallList {
 		float collisionMaxVel = 2*ballRadius/(Mathf.Sqrt(3)*Time.fixedDeltaTime); // limit on velocity for collision calculations
 		float maxVel = Mathf.Min(velocityCap, collisionMaxVel); // use the minimum of the two
 		MakeRandomVelocities (numBalls, maxVel, ref masses, ref velocities); // generate random velocities
-
-		// Does the user want to vary the radius?
-		bool varyRadii = GameObject.Find ("Panel").GetComponent<UserInputHandler> ().radiusToggle.isOn;
 
 		// Create and add each Ball
 		for (int i = 0; i < numBalls; i++){

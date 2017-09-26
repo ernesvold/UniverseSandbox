@@ -90,7 +90,7 @@ public class UserInputHandler : MonoBehaviour {
 		errorText.text = "Enter your custom parameters and hit Restart!";
 		errorText.color = Color.black;
 		GameObject.Find ("MainGameObject").GetComponent<MainScript> ().RestartSimulation (numBalls, boxSize);
-		GameObject.Find ("Main Camera").GetComponent<CameraController> ().ResetCamera ();
+		GameObject.Find ("Main Camera").GetComponent<CameraController> ().ResetCamera (boxSize);
 	}
 		
 	void Mute(){

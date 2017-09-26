@@ -12,12 +12,12 @@ public class CameraController : MonoBehaviour {
 	private float minInclination = -60f; // minimum camera inclination
 
 	void Start () {
-		ResetCamera ();
+		float boxSize = GameObject.Find ("MainGameObject").GetComponent<MainScript> ().boxSize;
+		ResetCamera (boxSize);
 	}
 
-	public void ResetCamera(){
+	public void ResetCamera(float boxSize){
 		// Move camera back far enough to see entire box
-		float boxSize = GameObject.Find ("MainGameObject").GetComponent<MainScript> ().boxSize;
 		transform.position = new Vector3 (0, 0, -4 * boxSize);
 		transform.eulerAngles = new Vector3 (0, 10, 0);
 
