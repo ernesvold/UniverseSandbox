@@ -45,9 +45,12 @@ public class MainScript : MonoBehaviour {
 		// Does the user want to vary the radius?
 		bool varyRadii = GameObject.Find ("Panel").GetComponent<UserInputHandler> ().radiusToggle.isOn;
 
+		// Does the user want color collisions?
+		bool changeColor = GameObject.Find ("Panel").GetComponent<UserInputHandler> ().colorToggle.isOn;
+
 		// Create new box and balls with user parameters
 		box = new Box (transform, boxSize);
-		ballList = new BallList (box.gameObj.transform, boxSize, numBalls, varyRadii);
+		ballList = new BallList (box.gameObj.transform, boxSize, numBalls, varyRadii, changeColor);
 
 	}
 
@@ -316,12 +319,14 @@ public class BallList {
 	private Grid3D<Ball> grid;
 	private float ballRadius = 0.5f;
 	private float boxSize; // box size
+	private bool changeColor = false;
 
 	// BallList constructor
-	public BallList(Transform parent, float inputBoxSize, int numBalls, bool varyRadii){
+	public BallList(Transform parent, float inputBoxSize, int numBalls, bool varyRadii, bool changeColor){
 		gameObj.name = "BallList"; // name the empty game object
 		gameObj.transform.parent = parent; // set as child
 		boxSize = inputBoxSize; // get box size
+		this.changeColor = changeColor; // turn on color collisions
 		AddBalls (numBalls, varyRadii);
 		//AddBall_Test();
 
@@ -562,7 +567,6 @@ public class BallList {
 		}
 
 		// Change ball color
-		bool changeColor = GameObject.Find ("Panel").GetComponent<UserInputHandler> ().colorToggle.isOn;
 		if (changeColor) {
 			if (ball1.rd != null) {
 				ball1.rd.material.color = Color.red;
