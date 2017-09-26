@@ -51,9 +51,9 @@ public class UserInputHandler : MonoBehaviour {
 		int numBalls = int.Parse(numBallsField.text);
 		float boxSize = float.Parse(boxSizeField.text);
 
-		float ballDiameter = 1f;
+		float ballRadius = 0.5f;
 		int numPts1 = (int)Mathf.Ceil (Mathf.Pow (numBalls, (float)1.0 / 3));
-		float minBoxSize = ballDiameter * 3 / 2;
+		float minBoxSize = ballRadius * 3;
 
 		// More input checking
 		if (numBalls <= 0) {
@@ -77,7 +77,7 @@ public class UserInputHandler : MonoBehaviour {
 			return;
 		}
 			
-		if ((boxSize * 2) / (numPts1 * 3) < ballDiameter) {
+		if ((boxSize * 2) / (numPts1 * 3) < ballRadius * 2) {
 			errorText.text = "That's too many balls for this box size. Try a larger box or fewer balls.";
 			errorText.color = Color.red;
 			return;

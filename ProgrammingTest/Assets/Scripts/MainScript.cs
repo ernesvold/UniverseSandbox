@@ -153,13 +153,13 @@ public class Ball {
 	private float radius; // the radius of the ball
 
 	// Ball constructor
-	public Ball(Transform parent, Vector3 initPosition, Vector3 initVelocity, float diameter, float ballMass){
+	public Ball(Transform parent, Vector3 initPosition, Vector3 initVelocity, float ballRadius, float ballMass){
 		gameObj.name = "Ball"; // name the sphere
 		gameObj.transform.parent = parent; // set as child
 		position = initPosition; // initial position
 		gameObj.transform.position = position; 
 		velocity = initVelocity; // initial velocity
-		radius = diameter/2; // set size
+		radius = ballRadius; // set size
 		gameObj.transform.localScale = Vector3.one * 2 * radius; 
 		mass = ballMass; // set mass
 
@@ -181,8 +181,8 @@ public class Ball {
 	// Detect and resolve collisions with walls
 	public void CheckBoundary(float boundary){
 
-		float diameter = gameObj.transform.localScale.x; // get the diameter (only need one dimension because it's a sphere)
-		float maxpos = boundary-diameter/2; // maximum position to keep ball inside walls
+		float radius = gameObj.transform.localScale.x/2; // get the radius (only need one dimension because it's a sphere)
+		float maxpos = boundary-radius; // maximum position to keep ball inside walls
 
 		// Check x-direction boundaries
 		if (Mathf.Abs(gameObj.transform.position.x) >= maxpos){ // If the ball is outside the box
@@ -292,7 +292,7 @@ public class BallList {
 
 	private List<Ball> balls = new List<Ball>(); // the list of ball objects
 	private Grid3D<Ball> grid;
-	private float ballDiameter = 1f;
+	private float ballRadius = 0.5f;
 	private float boxSize; // box size
 
 	// BallList constructor
@@ -307,7 +307,7 @@ public class BallList {
 		// Calculate cell size such that the box will contain an integer number of cells, each
 		//   at least twice the diameter of a ball, if possible
 		float cellSize;
-		int numCellsInBoxSize = Mathf.FloorToInt (boxSize / (ballDiameter * 2)); //  number of cells that in boxsize
+		int numCellsInBoxSize = Mathf.FloorToInt (boxSize / (ballRadius * 2 * 2)); //  number of cells that in boxsize
 		int numCells = 8*(numCellsInBoxSize*numCellsInBoxSize*numCellsInBoxSize); // total number of cells in box
 		if (numCellsInBoxSize < 1) { // if the size of a cell is larger than boxsize, 
 			cellSize = 2*boxSize; // make the box one big cell
@@ -317,7 +317,7 @@ public class BallList {
 		}
 		List<Vector3> positions = balls.Select (o => o.position).ToList (); // make a list of the ball positions
 		grid = new Grid3D<Ball> (cellSize, numCells); // create the grid
-		grid.Fill (positions, balls, ballDiameter/2); // populate the grid
+		grid.Fill (positions, balls, ballRadius); // populate the grid
 	}
 
 	// Create and add Balls to the list
@@ -327,21 +327,17 @@ public class BallList {
 		float[] masses = Enumerable.Repeat(1f,numBalls).ToArray(); // ball masses
 
 		// Make positions
-		float maxDiameter = 3.0f; // maximum ball size
-		MakeRandomPositions(numBalls, ref positions); // generate random positions (and set diameter)
-		if (ballDiameter > maxDiameter) {
-			ballDiameter = maxDiameter; // cap ball size
-		}
+		MakeRandomPositions(numBalls, ref positions); // generate random positions 
 
 		// Make velocities
 		float velocityCap = 20f; // limit on velocity for viewing purposes
-		float collisionMaxVel = ballDiameter/(Mathf.Sqrt(3)*Time.fixedDeltaTime); // limit on velocity for collision calculations
+		float collisionMaxVel = 2*ballRadius/(Mathf.Sqrt(3)*Time.fixedDeltaTime); // limit on velocity for collision calculations
 		float maxVel = Mathf.Min(velocityCap, collisionMaxVel); // use the minimum of the two
 		MakeRandomVelocities (numBalls, maxVel, ref masses, ref velocities); // generate random velocities
 
 		// Create and add each Ball
 		for (int i = 0; i < numBalls; i++){
-			balls.Add (new Ball (gameObj.transform, positions [i], velocities[i], ballDiameter, masses[i])); // add a new ball
+			balls.Add (new Ball (gameObj.transform, positions [i], velocities[i], ballRadius, masses[i])); // add a new ball
 		}
 
 
@@ -349,9 +345,9 @@ public class BallList {
 
 	// Create test ball scenario
 	private void AddBall_Test(){
-		ballDiameter = 2.0f;
-		balls.Add (new Ball (gameObj.transform, new Vector3 (2, 0, 0), new Vector3 (-2, 0, 0), ballDiameter, 1.0f));
-		balls.Add (new Ball (gameObj.transform, new Vector3 (-2, 0, 0), new Vector3 (2, 0, 0), ballDiameter, 1.0f));
+		ballRadius = 1.0f;
+		balls.Add (new Ball (gameObj.transform, new Vector3 (2, 0, 0), new Vector3 (-2, 0, 0), ballRadius, 1.0f));
+		balls.Add (new Ball (gameObj.transform, new Vector3 (-2, 0, 0), new Vector3 (2, 0, 0), ballRadius, 1.0f));
 		balls [0].rd.material.color = Color.black;
 	}
 
@@ -448,7 +444,7 @@ public class BallList {
 		// Update grid
 		grid.Empty ();
 		List<Vector3> positions = balls.Select (o => o.position).ToList (); // make a list of the ball positions
-		grid.Fill (positions, balls, ballDiameter/2);
+		grid.Fill (positions, balls, ballRadius);
 
 	}
 
