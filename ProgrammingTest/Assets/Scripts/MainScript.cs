@@ -335,9 +335,18 @@ public class BallList {
 		float maxVel = Mathf.Min(velocityCap, collisionMaxVel); // use the minimum of the two
 		MakeRandomVelocities (numBalls, maxVel, ref masses, ref velocities); // generate random velocities
 
+		// Does the user want to vary the radius?
+		bool varyRadii = GameObject.Find ("Panel").GetComponent<UserInputHandler> ().radiusToggle.isOn;
+
 		// Create and add each Ball
 		for (int i = 0; i < numBalls; i++){
-			balls.Add (new Ball (gameObj.transform, positions [i], velocities[i], ballRadius, masses[i])); // add a new ball
+			float radius;
+			if (varyRadii) {
+				radius = Random.Range (ballRadius / 5, ballRadius);
+			} else {
+				radius = ballRadius;
+			} 
+			balls.Add (new Ball (gameObj.transform, positions [i], velocities[i], radius, masses[i])); // add a new ball
 		}
 
 
