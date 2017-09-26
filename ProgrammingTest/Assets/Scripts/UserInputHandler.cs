@@ -9,6 +9,7 @@ public class UserInputHandler : MonoBehaviour {
 	public InputField boxSizeField;
 	public Text errorText;
 	public Toggle radiusToggle;
+	public Toggle colorToggle;
 	public Button restartButton;
 	public Button muteButton;
 	public Button quitButton;
@@ -32,9 +33,6 @@ public class UserInputHandler : MonoBehaviour {
 		// Set character validation for text input fields
 		numBallsField.characterValidation = InputField.CharacterValidation.Integer;
 		boxSizeField.characterValidation = InputField.CharacterValidation.Decimal;
-
-		// Start with a single ball size
-		radiusToggle.isOn = false;
 
 	}
 

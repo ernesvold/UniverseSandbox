@@ -295,6 +295,12 @@ public class Ball {
 		return true;
 			
 	}
+
+	// Fade ball color from its current color to white
+	public void Fade(){
+		Color currentColor = rd.material.color;
+		rd.material.color = Color.Lerp (currentColor, Color.white, 0.05f);
+	}
 	
 }
 
@@ -466,6 +472,8 @@ public class BallList {
 			ball.CheckBoundary (boxSize);
 
 			ball.MoveBall (timeStep);
+
+			ball.Fade ();
 		}
 
 		// Update grid
@@ -552,6 +560,18 @@ public class BallList {
 		} else if (ball2.ballCollideAudio != null) {
 			ball2.ballCollideAudio.Play ();
 		}
+
+		// Change ball color
+		bool changeColor = GameObject.Find ("Panel").GetComponent<UserInputHandler> ().colorToggle.isOn;
+		if (changeColor) {
+			if (ball1.rd != null) {
+				ball1.rd.material.color = Color.red;
+			}
+			if (ball2.rd != null) {
+				ball2.rd.material.color = Color.red;
+			}
+		}
+
 	}
 
 }
