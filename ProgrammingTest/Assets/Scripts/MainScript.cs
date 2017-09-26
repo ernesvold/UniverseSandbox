@@ -300,8 +300,8 @@ public class BallList {
 		gameObj.name = "BallList"; // name the empty game object
 		gameObj.transform.parent = parent; // set as child
 		boxSize = inputBoxSize; // get box size
-		//AddBalls (numBalls);
-		AddBall_Test();
+		AddBalls (numBalls);
+		//AddBall_Test();
 
 		// Make spatial grid
 		// Calculate cell size such that the box will contain an integer number of cells, each
@@ -539,18 +539,14 @@ public class Grid3D<T>{
 	private float cellSize; // size of each cell in the grid
 	private int numCells; // total number of possible cells
 	private Dictionary<int, List<T>> dict = new Dictionary<int, List<T>>(); // the spatial hash
-	//private int p1 = 73856093; // "Large primes" for hash function
-	//private int p2 = 19349663; // TODO: These large primes don't seem to result in unique keys
-	//private int p3 = 83492791; //       Check to see if they are actually prime
-	private int p1 = 13;
-	private int p2 = 17;
-	private int p3 = 19;
+	private int p1 = 73856093; // "Large primes" for hash function
+	private int p2 = 19349669; 
+	private int p3 = 83492791;       
 
 	// Grid3D constructor
 	public Grid3D(float size, int num){
 		cellSize = size;
 		numCells = num;
-		Debug.Log ("Creating a grid with cell size " + cellSize + " and "+numCells+ " cells.");
 	}
 
 	// Add (each vertex of) an object to the dict 
@@ -616,10 +612,13 @@ public class Grid3D<T>{
 
 	}
 
+	// Get the list of keys
 	public List<int> GetKeys(){
 		return dict.Keys.ToList();
 	}
 
+
+	// Get the list of objects corresponding to a key
 	public List<T> GetObjectsInCell(int key){
 		if (dict.ContainsKey (key)) {
 			return dict [key];
@@ -627,6 +626,7 @@ public class Grid3D<T>{
 		return new List<T>();
 	}
 
+	// Empty the grid
 	public void Empty(){
 		dict.Clear ();
 	}

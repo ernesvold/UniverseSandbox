@@ -94,7 +94,7 @@ MonoBehaviour:
   m_MinSize: {x: 707, y: 571}
   m_MaxSize: {x: 18002, y: 18021}
   vertical: 0
-  controlID: 98
+  controlID: 75
 --- !u!114 &5
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -257,7 +257,7 @@ MonoBehaviour:
   m_MinSize: {x: 432, y: 571}
   m_MaxSize: {x: 14002, y: 18021}
   vertical: 1
-  controlID: 99
+  controlID: 76
 --- !u!114 &12
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -649,8 +649,8 @@ MonoBehaviour:
   m_DepthBufferBits: 32
   m_Pos:
     serializedVersion: 2
-    x: 234
-    y: 94
+    x: 2
+    y: 19
     width: 767
     height: 508
   m_MaximizeOnPlay: 0
@@ -683,7 +683,7 @@ MonoBehaviour:
       y: 17
       width: 767
       height: 491
-    m_Scale: {x: 1.244711, y: 1.244711}
+    m_Scale: {x: 1.2405438, y: 1.2405438}
     m_Translation: {x: 383.5, y: 245.5}
     m_MarginLeft: 0
     m_MarginRight: 0
@@ -691,10 +691,10 @@ MonoBehaviour:
     m_MarginBottom: 0
     m_LastShownAreaInsideMargins:
       serializedVersion: 2
-      x: -308.10364
-      y: -197.23453
-      width: 616.2073
-      height: 394.46906
+      x: -309.1386
+      y: -197.89708
+      width: 618.2772
+      height: 395.79416
     m_MinimalGUI: 1
   m_defaultScale: 1
   m_TargetTexture: {fileID: 0}
