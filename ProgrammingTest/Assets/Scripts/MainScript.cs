@@ -148,6 +148,7 @@ public class Ball {
 	public float mass = 1f; // the mass of the ball
 	public Renderer rd;
 	public AudioSource ballCollideAudio;
+	public AudioSource wallCollideAudio;
 
 	private GameObject gameObj = GameObject.CreatePrimitive (PrimitiveType.Sphere); // a sphere in unity
 	private float radius; // the radius of the ball
@@ -188,6 +189,10 @@ public class Ball {
 		if (Mathf.Abs(gameObj.transform.position.x) >= maxpos){ // If the ball is outside the box
 			if (gameObj.transform.position.x * velocity.x > 0) { // And heading away from the box
 				velocity.x *= -1; // Turn it back in the right direction
+				// Play wall collision audio, if provided
+				if (wallCollideAudio != null) {
+					wallCollideAudio.Play ();
+				}
 			}
 		}
 
@@ -195,6 +200,10 @@ public class Ball {
 		if (Mathf.Abs(gameObj.transform.position.y) >= maxpos){
 			if (gameObj.transform.position.y * velocity.y > 0) {
 				velocity.y *= -1;
+				// Play wall collision audio, if provided
+				if (wallCollideAudio != null) {
+					wallCollideAudio.Play ();
+				}
 			}
 		}
 
@@ -202,6 +211,10 @@ public class Ball {
 		if (Mathf.Abs(gameObj.transform.position.z) >= maxpos){
 			if (gameObj.transform.position.z * velocity.z > 0) {
 				velocity.z *= -1;
+				// Play wall collision audio, if provided
+				if (wallCollideAudio != null) {
+					wallCollideAudio.Play ();
+				}
 			}
 		}
 
