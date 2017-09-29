@@ -11,11 +11,6 @@ public class CameraController : MonoBehaviour {
 	private float maxInclination = 60f; // maximum camera inclination
 	private float minInclination = -60f; // minimum camera inclination
 
-	void Start () {
-		float boxSize = GameObject.Find ("MainGameObject").GetComponent<MainScript> ().boxSize;
-		ResetCamera (boxSize);
-	}
-
 	public void ResetCamera(float boxSize){
 		// Move camera back far enough to see entire box
 		transform.position = new Vector3 (0, 0, -4 * boxSize);

@@ -5,8 +5,7 @@ using UnityEngine;
 
 public class MainScript : MonoBehaviour {
 
-	public float boxSize;
-
+	private float boxSize;
 	private int numBalls;
 	private Box box;
 	private BallList ballList;
@@ -19,6 +18,7 @@ public class MainScript : MonoBehaviour {
 
 		// Begin simulation
 		RestartSimulation (initNumBalls, initBoxSize);
+
 	}
 
 	void FixedUpdate(){
@@ -52,6 +52,8 @@ public class MainScript : MonoBehaviour {
 		box = new Box (transform, boxSize);
 		ballList = new BallList (box.gameObj.transform, boxSize, numBalls, varyRadii, changeColor);
 
+		// Reset camera view
+		GameObject.Find ("Main Camera").GetComponent<CameraController> ().ResetCamera(boxSize);
 	}
 
 }
