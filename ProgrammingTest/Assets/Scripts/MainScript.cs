@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class MainScript : MonoBehaviour {
 
-	private float boxSize;
-	private int numBalls;
+	private float boxSize; // one half the length of the box
+	private int numBalls; // number of balls
 	private Box box;
 	private BallList ballList;
 
@@ -28,6 +28,7 @@ public class MainScript : MonoBehaviour {
 
 	}
 
+	// Restart the simulation and camera view with new parameters
 	public void RestartSimulation(int newNumBalls, float newBoxSize){
 		
 		// Apply new user parameters
@@ -54,10 +55,12 @@ public class MainScript : MonoBehaviour {
 
 		// Reset camera view
 		GameObject.Find ("Main Camera").GetComponent<CameraController> ().ResetCamera(boxSize);
+
 	}
 
 }
 
+// A box with walls and edges
 public class Box{
 
 	public GameObject gameObj = new GameObject ();
@@ -68,6 +71,7 @@ public class Box{
 	private const int numEdges = 12;
 
 	public Box(Transform parent, float boxSize){
+		
 		gameObj.name = "Box";
 		gameObj.transform.parent = parent;
 
@@ -86,6 +90,7 @@ public class Box{
 			Vector3 position = new Vector3 (wallX [i], wallY [i], wallZ [i]);
 			Vector3 size = new Vector3 (wallSizeX [i], wallSizeY [i], wallSizeZ [i]);
 			walls [i] = new Wall (gameObj.transform, position, size);
+
 		}
 
 		// Position, rotation, and size parameters for the edges
@@ -101,7 +106,9 @@ public class Box{
 			Vector3 position = new Vector3 (edgeX [i], edgeY [i], edgeZ [i]);
 			Vector3 rotation = new Vector3 (edgeRotX [i], 0, edgeRotZ [i]);
 			edges [i] = new Edge (gameObj.transform, position, rotation, edgeSize);
+
 		}
+
 	}
 
 }
@@ -118,8 +125,9 @@ public class Wall{
 		gameObj.transform.position = position; // set the position
 		gameObj.transform.localScale = size; // set the size
 
+		// Set material
 		Renderer rd;
-		rd = gameObj.GetComponent<Renderer> (); // get renderer 
+		rd = gameObj.GetComponent<Renderer> (); 
 		rd.material = Resources.Load("FrostedGlass", typeof(Material)) as Material;
 
 	}
@@ -139,13 +147,13 @@ public class Edge{
 		gameObj.transform.Rotate(rotation); // set the rotation
 		gameObj.transform.localScale = size; // set the size
 
+		// Set material
 		Renderer rd;
-		rd = gameObj.GetComponent<Renderer> (); // get renderer
+		rd = gameObj.GetComponent<Renderer> (); 
 		rd.material = Resources.Load("DullMetal", typeof(Material)) as Material;
-		rd.material.color = Color.grey; // make edges grey
+
 	}
-
-
+		
 }
 
 // A single ball
@@ -161,8 +169,8 @@ public class Ball {
 	private GameObject gameObj = GameObject.CreatePrimitive (PrimitiveType.Sphere); // a sphere in unity
 	private float radius; // the radius of the ball
 
-	// Ball constructor
 	public Ball(Transform parent, Vector3 initPosition, Vector3 initVelocity, float ballRadius, float ballMass){
+		
 		gameObj.name = "Ball"; // name the sphere
 		gameObj.transform.parent = parent; // set as child
 		position = initPosition; // initial position
@@ -172,6 +180,7 @@ public class Ball {
 		gameObj.transform.localScale = Vector3.one * 2 * radius; 
 		mass = ballMass; // set mass
 
+		// Set material
 		rd = gameObj.GetComponent<Renderer>();
 		rd.material = Resources.Load ("ShinyMetal", typeof(Material)) as Material;
 
@@ -179,12 +188,15 @@ public class Ball {
 		ballCollideAudio = gameObj.AddComponent<AudioSource> ();
 		AudioClip ballCollideClip = Resources.Load<AudioClip> ("ballCollide");
 		ballCollideAudio.clip = ballCollideClip;
+
 	}
 
-	// Move the ball by its velocity
+	// Move the ball by its velocity in one timestep
 	public void MoveBall(float timestep){
+		
 		position += velocity * timestep;
 		gameObj.transform.position = position;
+	
 	}
 
 	// Detect and resolve collisions with walls
@@ -195,35 +207,50 @@ public class Ball {
 
 		// Check x-direction boundaries
 		if (Mathf.Abs(gameObj.transform.position.x) >= maxpos){ // If the ball is outside the box
+			
 			if (gameObj.transform.position.x * velocity.x > 0) { // And heading away from the box
+				
 				velocity.x *= -1; // Turn it back in the right direction
+
 				// Play wall collision audio, if provided
 				if (wallCollideAudio != null) {
 					wallCollideAudio.Play ();
 				}
+
 			}
+
 		}
 
 		// Check y-direction boundaries
 		if (Mathf.Abs(gameObj.transform.position.y) >= maxpos){
+			
 			if (gameObj.transform.position.y * velocity.y > 0) {
+				
 				velocity.y *= -1;
+
 				// Play wall collision audio, if provided
 				if (wallCollideAudio != null) {
 					wallCollideAudio.Play ();
 				}
+
 			}
+
 		}
 
 		// Check z-direction boundaries
 		if (Mathf.Abs(gameObj.transform.position.z) >= maxpos){
+			
 			if (gameObj.transform.position.z * velocity.z > 0) {
+				
 				velocity.z *= -1;
+
 				// Play wall collision audio, if provided
 				if (wallCollideAudio != null) {
 					wallCollideAudio.Play ();
 				}
+
 			}
+
 		}
 
 	}
@@ -274,7 +301,7 @@ public class Ball {
 		}
 
 		// If Ball 2 is not approaching Ball 1, no collision
-		if (Vector3.Dot (relativePos, relativeVel) > 0) { 
+		if (Vector3.Dot (relativePos, relativeVel) > 0) {
 			return false;
 		}
 
@@ -290,8 +317,7 @@ public class Ball {
 
 		// If the displacement vector of Ball 2 is too short to reach the contact point, no collision
 		float offsetSquared = sumRadiiSquared - closDistSquared; // difference between displacement at closest approach and displacement at contact
-		// Check for negative number before you try to take a square root
-		if (offsetSquared < 0) { 
+		if (offsetSquared < 0) { // Check for negative number before you try to take a square root
 			return false;
 		}
 		float contactDisp = closAppDisp - Mathf.Sqrt(offsetSquared); // displacement of Ball 2 at moment of contact
@@ -318,10 +344,10 @@ public class BallList {
 	public GameObject gameObj = new GameObject(); // an empty game object in Unity
 
 	private List<Ball> balls = new List<Ball>(); // the list of ball objects
-	private Grid3D<Ball> grid;
-	private float ballRadius = 0.5f;
+	private Grid3D<Ball> grid; // spatial hash for collision detection
+	private float ballRadius = 0.5f; // radius of a ball
 	private float boxSize; // box size
-	private bool changeColor = false;
+	private bool changeColor = false; // toogle for color colisions
 
 	// BallList constructor
 	public BallList(Transform parent, float inputBoxSize, int numBalls, bool varyRadii, bool changeColor){
@@ -366,22 +392,27 @@ public class BallList {
 
 		// Create and add each Ball
 		for (int i = 0; i < numBalls; i++){
-			float radius;
+			
+			float radius; // radius of a single ball
+
+			// Set radius either randomly or to a single value
 			if (varyRadii) {
 				radius = Random.Range (ballRadius / 5, ballRadius);
 			} else {
 				radius = ballRadius;
 			} 
+
 			float density = 6f / Mathf.PI; // Unity default density of sphere (diameter of 1 has mass of 1) 
-			float mass = (4f * Mathf.PI * radius * radius * radius / 3f) * density;
+			float mass = (4f * Mathf.PI * radius * radius * radius / 3f) * density; // calculate mass
 			balls.Add (new Ball (gameObj.transform, positions [i], velocities[i], radius, mass)); // add a new ball
+
 		}
-
-
+			
 	}
 
-	// Create test ball scenario
+	// Create test ball scenario for debugging purposes
 	private void AddBall_Test(){
+		
 		ballRadius = 1.0f;
 		float smallBallRadius = ballRadius / 3;
 		float ballMass = (4f * Mathf.PI * ballRadius * ballRadius * ballRadius / 3f) * 6f / Mathf.PI;
@@ -389,10 +420,12 @@ public class BallList {
 		balls.Add (new Ball (gameObj.transform, new Vector3 (2, 0, 0), new Vector3 (-2, 0, 0), smallBallRadius, smallBallMass));
 		balls.Add (new Ball (gameObj.transform, new Vector3 (-2, 0, 0), new Vector3 (2, 0, 0), ballRadius, ballMass));
 		balls [0].rd.material.color = Color.black;
+
 	}
 
 	// Generate a list of random-looking positions
 	private void MakeRandomPositions(int numPositions, ref Vector3[] positions){
+		
 		int numPts1d = (int) Mathf.Ceil(Mathf.Pow(numPositions,(float)1.0/3)); // number of points in one dimension in the grid
 		numPts1d = numPts1d * 3; // add extra white space 
 		int numpts2d = numPts1d * numPts1d; // number of points in one 2d slice of the grid
@@ -410,6 +443,7 @@ public class BallList {
 		int x, y, z; // x,y,z coordinate
 		int index; // index corresponding to grid
 		for (int i = 0; i < numPositions; i++) {
+			
 			// Select index from shuffled array
 			index = indices[i];
 
@@ -420,6 +454,7 @@ public class BallList {
 
 			// Add to positions array
 			positions [i] = new Vector3 (scale*(x-shift), scale*(y-shift), scale*(z-shift));
+
 		}
 
 	}
@@ -429,8 +464,10 @@ public class BallList {
 
 		// Input checking
 		if (k > array.Length) {
+			
 			Debug.Log ("partiallyShuffleArray: CAUTION: k is greater than length of array");
 			k = array.Length;
+
 		}
 
 		// For the Knuth shuffle, you don't need to shuffle the last element
@@ -440,10 +477,12 @@ public class BallList {
 
 		// Knuth shuffle algorithm -- shuffles first k elements in array
 		for (int i = 0; i < k; i++) {
+			
 			int tmp = array [i];
 			int r = Random.Range (i, array.Length);
 			array [i] = array [r];
 			array [r] = tmp;
+
 		}
 	
 	}
@@ -456,15 +495,19 @@ public class BallList {
 
 		// Generate some random velocities
 		for (int i = 0; i < numVelocities; i++) {
+			
 			velocities[i] = new Vector3 (Random.Range (-maxVel, maxVel), Random.Range (-maxVel, maxVel), Random.Range (-maxVel, maxVel));
 			totalMomentum = totalMomentum + masses[i]*velocities [i]; // Calculate total linear momentum 
+
 		}
 
 		// If there's more than one ball, correct velocities so total linear momentum is zero
 		if (numVelocities > 1) {
+			
 			for (int i = 0; i < numVelocities; i++) {
 				velocities [i] = (masses[i]*velocities [i] - (totalMomentum / (float)numVelocities))/masses[i];
 			}
+
 		}
 
 	}
@@ -481,6 +524,7 @@ public class BallList {
 			ball.MoveBall (timeStep);
 
 			ball.Fade ();
+
 		}
 
 		// Update grid
@@ -500,9 +544,7 @@ public class BallList {
 			for (int j = i + 1; j < balls.Count; j++) {
 				
 				if (balls[i].IsCollidingWith(balls[j])){
-
 					CollisionResolve (balls [i], balls [j]); // Trigger collision resolution
-
 				}
 
 			}
@@ -511,9 +553,10 @@ public class BallList {
 
 	}
 
+	// A broad phase collision detection method utilizing a spatial grid
 	private void CheckCollisions_Grid (float timeStep){
 
-		List<int> keys = grid.GetKeys();
+		List<int> keys = grid.GetKeys(); // get the list of existing cells
 
 		// For each cell in the grid
 		foreach (int key in keys) {
@@ -531,14 +574,15 @@ public class BallList {
 					for (int j = i + 1; j < ballsInCell.Count; j++) {
 
 						if (ballsInCell[i].IsCollidingWith(ballsInCell[j])){
-
 							CollisionResolve (ballsInCell [i], ballsInCell [j]); // Trigger collision resolution
-
 						}
 
 					}
+
 				}
+
 			}
+
 		}
 
 	}
@@ -570,12 +614,14 @@ public class BallList {
 
 		// Change ball color
 		if (changeColor) {
+			
 			if (ball1.rd != null) {
 				ball1.rd.material.color = Color.red;
 			}
 			if (ball2.rd != null) {
 				ball2.rd.material.color = Color.red;
 			}
+
 		}
 
 	}
@@ -592,7 +638,6 @@ public class Grid3D<T>{
 	private int p2 = 19349669; 
 	private int p3 = 83492791;       
 
-	// Grid3D constructor
 	public Grid3D(float size, int num){
 		cellSize = size;
 		numCells = num;
@@ -600,6 +645,7 @@ public class Grid3D<T>{
 
 	// Add (each vertex of) an object to the dict 
 	public void AddObject(Vector3 position, T obj, float size){
+		
 		AddVertex (new Vector3(position.x+size, position.y+size, position.z+size), obj);
 		AddVertex (new Vector3(position.x+size, position.y+size, position.z-size), obj);
 		AddVertex (new Vector3(position.x+size, position.y-size, position.z-size), obj);
@@ -608,6 +654,7 @@ public class Grid3D<T>{
 		AddVertex (new Vector3(position.x-size, position.y+size, position.z-size), obj);
 		AddVertex (new Vector3(position.x-size, position.y-size, position.z-size), obj);
 		AddVertex (new Vector3(position.x-size, position.y-size, position.z+size), obj);
+
 	}
 
 	// Add a vertex to the dict
@@ -621,35 +668,43 @@ public class Grid3D<T>{
 		if (dict.ContainsKey (key)) {
 			cell = dict [key];
 		} 
+
 		// If cell doesn't exist, add it to dictionary
 		else {
+			
 			cell = new List<T>();
 			dict.Add(key, cell);
+
 		}
 			
 		// If that cell doesn't already contain the object, add it
 		if (!cell.Contains (obj)) { 
 			cell.Add (obj);
 		} 
+
 	}
 
 	// Convert a position to an integer key
 	private int MakeKey(Vector3 position){
+		
 		int x = Mathf.FloorToInt(position.x / cellSize);
 		int y = Mathf.FloorToInt(position.y / cellSize);
 		int z = Mathf.FloorToInt(position.z / cellSize);
-		return (x * p1 ^ y * p2 ^ z * p3) % numCells; 
+		return (x * p1 ^ y * p2 ^ z * p3) % numCells; // hash function from Teschner et al.
+
 	}
 
 	// Add a list of objects to the dict
 	public void Fill(List<Vector3> posList, List<T> objList, float size){
 		
-		int numObj = 0;
+		int numObj = 0; // number of objects in list
 
 		// Error checking - the posList and the objList must be the same length
 		if (posList.Count != objList.Count) {
+			
 			Debug.Log ("WARNING: Grid3D.Add: number of positions does not equal number of objects!");
 			numObj = Mathf.Min (posList.Count, objList.Count);
+
 		} else {
 			numObj = objList.Count;
 		}
@@ -663,21 +718,27 @@ public class Grid3D<T>{
 
 	// Get the list of keys
 	public List<int> GetKeys(){
+		
 		return dict.Keys.ToList();
+
 	}
 
 
 	// Get the list of objects corresponding to a key
 	public List<T> GetObjectsInCell(int key){
+		
 		if (dict.ContainsKey (key)) {
 			return dict [key];
 		}
+
 		return new List<T>();
 	}
 
 	// Empty the grid
 	public void Empty(){
+		
 		dict.Clear ();
+
 	}
 
 }

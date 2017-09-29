@@ -1,10 +1,10 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/MainScript.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/UserInputHandler.cs">
     <Files>
-      <File FileName="Assets/Scripts/MainScript.cs" Line="23" Column="2" />
-      <File FileName="Assets/Scripts/CameraController.cs" Line="19" Column="36" />
-      <File FileName="Assets/Scripts/UserInputHandler.cs" Line="88" Column="3" />
+      <File FileName="Assets/Scripts/MainScript.cs" Line="741" Column="3" />
+      <File FileName="Assets/Scripts/CameraController.cs" Line="80" Column="2" />
+      <File FileName="Assets/Scripts/UserInputHandler.cs" Line="135" Column="20" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

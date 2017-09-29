@@ -14,11 +14,10 @@ public class UserInputHandler : MonoBehaviour {
 	public Button muteButton;
 	public Button quitButton;
 
-	private int maxNumBalls = 1000;
-	private float maxBoxSize = 100;
+	private int maxNumBalls = 1000; // limit on number of balls
+	private float maxBoxSize = 100; // limit on box size
 	private bool isMuted = false; // flag indicating whether audio is muted
 
-	// Use this for initialization
 	void Start () {
 		
 		// Attach Restart method to onClick for restart button
@@ -36,18 +35,24 @@ public class UserInputHandler : MonoBehaviour {
 
 	}
 
+	// Restart simulation
 	void Restart(){
 		
 		// Input checking
 		if (numBallsField.text == "") {
+			
 			errorText.text = "Please enter a value for number of balls.";
 			errorText.color = Color.red;
 			return;
+
 		}
+
 		if (boxSizeField.text == "") {
+			
 			errorText.text = "Please enter a value for size of box.";
 			errorText.color = Color.red;
 			return;
+
 		}
 
 		// Read user input from text fields
@@ -60,30 +65,40 @@ public class UserInputHandler : MonoBehaviour {
 
 		// More input checking
 		if (numBalls <= 0) {
+			
 			errorText.text = "Come on, you've gotta have at least one ball.";
 			errorText.color = Color.red;
 			return;
+
 		}
 		if (boxSize < minBoxSize) {
+			
 			errorText.text = "Please enter a box size of at least "+minBoxSize.ToString()+".";
 			errorText.color = Color.red;
 			return;
+
 		}
 		if (numBalls > maxNumBalls) {
+			
 			errorText.text = "Please enter a number of balls less than "+maxNumBalls.ToString()+".";
 			errorText.color = Color.blue;
 			return;
+
 		}
 		if (boxSize > maxBoxSize) {
+			
 			errorText.text = "Please enter a box size smaller than "+maxBoxSize.ToString()+".";
 			errorText.color = Color.blue;
 			return;
+
 		}
 			
 		if ((boxSize * 2) / (numPts1 * 3) < ballRadius * 2) {
+			
 			errorText.text = "That's too many balls for this box size. Try a larger box or fewer balls.";
 			errorText.color = Color.red;
 			return;
+
 		}
 
 		// Restart simulation and reset camera view
@@ -91,26 +106,33 @@ public class UserInputHandler : MonoBehaviour {
 		errorText.color = Color.black;
 		GameObject.Find ("MainGameObject").GetComponent<MainScript> ().RestartSimulation (numBalls, boxSize);
 		GameObject.Find ("Main Camera").GetComponent<CameraController> ().ResetCamera (boxSize);
+
 	}
-		
+
+	// Mute audio
 	void Mute(){
 
 		Text buttonText;
 
 		if (isMuted) {
+			
 			AudioListener.volume = 1;
 			buttonText = muteButton.GetComponentInChildren<Text>();
 			buttonText.text = "Mute";
+
 		} else {
+			
 			AudioListener.volume = 0;
 			buttonText = muteButton.GetComponentInChildren<Text>();
 			buttonText.text = "Unmute";
+
 		}
 
 		// Update muted flag
 		isMuted = !isMuted;
 	}
 
+	// Quit simulation
 	void Quit(){
 
 		Application.Quit ();
